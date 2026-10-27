@@ -1,28 +1,18 @@
-<!doctype html>
-<html lang="ru">
-<head>
-<meta charset="utf-8">
+<!doctype html><html lang="ru"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Покер">
-<meta name="theme-color" content="#0a0e0c">
-<link rel="apple-touch-icon" href="icon-180.png">
-<link rel="manifest" href="manifest.webmanifest">
-<title>Покерный помощник</title>
-<style>:root{padding-top:env(safe-area-inset-top,0px);color-scheme:dark}body{margin:0;font:14px system-ui,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>
-</head>
-<body>
+<meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="Шпаргалка">
+<meta name="theme-color" content="#090c0b"><link rel="apple-touch-icon" href="../icon-180.png"><link rel="manifest" href="manifest.webmanifest">
+<title>Покер: шпаргалка</title>
+<style>:root{padding-top:env(safe-area-inset-top,0px);color-scheme:dark}body{margin:0}[hidden]{display:none!important}</style></head><body>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700&family=Unbounded:wght@600;800&family=JetBrains+Mono:wght@500;700&display=swap">
 <style>
-/* Layout: экран-инструмент — стол сверху, панель действий под большим пальцем. Сознательно одна тёмная тема: игра идёт в полумраке */
+/* Layout: инструмент одной рукой — настройки сверху, ответ в центре, вкладки снизу под большим пальцем. Одна тёмная тема: игра идёт в полумраке */
 :root{
-  --bg:#0a0e0c; --panel:#131917; --raised:#1b2320; --line:#26302c; --ink:#eef3f0; --muted:#8d9a94; --dim:#5b6762;
-  --felt:#0f2a1f; --felt-edge:#1e4a37;
-  --raise:#38d47c; --call:#5ea3ff; --hot:#ff5f63; --fold:#7c8783; --gold:#f2c14e;
-  --chip-w:#f1f1ee; --chip-r:#d9363e; --chip-b:#2f6fe8; --chip-g:#24a05c; --chip-k:#1d1f1e;
-  --body:"Onest", -apple-system, system-ui, sans-serif; --display:"Unbounded", "Onest", sans-serif; --mono:"JetBrains Mono", ui-monospace, monospace;
+  --bg:#090c0b; --panel:#121816; --raised:#1a221f; --line:#25302b; --ink:#eef3f0; --muted:#8e9b95; --dim:#56625d;
+  --raise:#34d17a; --raise-bg:#0f3a24; --call:#5aa2ff; --call-bg:#11294a; --hot:#ff5b62; --hot-bg:#46181b; --fold:#2a3330; --gold:#f2c14e;
+  --s0:#eef3f0; --s1:#ff5b62; --s2:#5aa2ff; --s3:#34d17a;
+  --body:"Onest",-apple-system,system-ui,sans-serif; --display:"Unbounded","Onest",sans-serif; --mono:"JetBrains Mono",ui-monospace,monospace;
   color-scheme:dark;
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -30,124 +20,159 @@ html,body{height:100%}
 body{background:var(--bg);color:var(--ink);font:15px/1.4 var(--body);overflow:hidden;user-select:none;-webkit-user-select:none}
 button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;touch-action:manipulation}
 button:focus-visible{outline:2px solid var(--call);outline-offset:2px}
-.app{height:100%;display:flex;flex-direction:column;max-width:520px;margin:0 auto}
-/* верхняя строка */
-.top{display:flex;align-items:center;gap:8px;padding:8px 16px 4px}
-.top .info{flex:1;min-width:0;font:600 13px var(--mono);color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.top .info b{color:var(--ink)}
-.tbtn{height:36px;padding:0 12px;border-radius:10px;background:var(--raised);font-weight:600;font-size:14px}
-/* стол */
-.table-wrap{flex:1;min-height:0;position:relative;padding:8px 16px}
-.felt{position:absolute;inset:11% 21% 11%;border-radius:28px;background:radial-gradient(ellipse at 50% 40%,#16392a,var(--felt) 70%);border:3px solid var(--felt-edge);box-shadow:inset 0 0 40px rgba(0,0,0,.5)}
-.center{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center}
-.pot{font:700 13px var(--mono);color:var(--muted)} .pot b{display:block;font:800 22px var(--display);color:var(--ink)}
-.hc{display:flex;gap:6px;justify-content:center}
-#heroCards{flex-direction:column;align-items:center}
-.hc.board .pc{width:34px;height:48px;font-size:16px;border-radius:5px}.hc.board .pc small{font-size:13px}
-.pc{width:46px;height:64px;border-radius:7px;background:#fafaf7;color:#111;display:flex;flex-direction:column;align-items:center;justify-content:center;font:700 22px/1 var(--mono);box-shadow:0 3px 8px rgba(0,0,0,.5)}
-.pc small{font-size:18px;margin-top:2px}
-.pc.s0{color:#111}.pc.s1{color:#d42a32}.pc.s2{color:#1f5fd6}.pc.s3{color:#168a4a}
-.pc.empty{background:transparent;border:2px dashed var(--dim);color:var(--dim);box-shadow:none;font-size:13px}
-.seat{position:absolute;display:flex;align-items:center;gap:3px}
-.seat .meta{display:flex;flex-direction:column;align-items:center;gap:1px;min-width:40px}
-.seat.top{flex-direction:column;transform:translate(-50%,-26px)}
-.seat.bot{flex-direction:column-reverse;transform:translate(-50%,calc(-100% + 26px))}
-.seat.bot .meta{flex-direction:column-reverse}
-.seat.lft{flex-direction:row;transform:translate(-26px,-50%)}
-.seat.rgt{flex-direction:row-reverse;transform:translate(calc(-100% + 26px),-50%)}
-.seat.ghost.top,.seat.ghost.bot,.seat.ghost.lft,.seat.ghost.rgt{transform:translate(-50%,-50%)}
-.seat.empty .disc{border:2px dashed var(--dim);background:transparent;color:var(--dim);font:700 22px var(--mono)}
-.seat.ghost{pointer-events:none}.seat.ghost .disc{width:18px;height:18px;border:1px dashed var(--line);background:transparent}
-.seat .disc{flex:none;width:52px;height:52px;border-radius:50%;background:var(--panel);border:2px solid var(--line);display:flex;flex-direction:column;align-items:center;justify-content:center;transition:border-color .2s,opacity .2s}
-.seat .pos{font:700 12px var(--mono)}
-.seat .stk{font:500 10px var(--mono);color:var(--muted)}
-.seat.hero .disc{border-color:var(--gold);background:#2a2412}
-.seat.folded .disc{opacity:.32}
-.seat.away .disc{opacity:.4;border-style:dashed}
-.seat.turn .disc{border-color:var(--call);box-shadow:0 0 0 4px rgba(94,163,255,.25);animation:pulse 1.2s ease-in-out infinite}
-@keyframes pulse{50%{box-shadow:0 0 0 8px rgba(94,163,255,.08)}}
-.seat .bet{font:700 11px var(--mono);background:rgba(0,0,0,.55);padding:1px 6px;border-radius:8px;min-height:16px}
-.seat .bet.r{color:var(--raise)} .seat .bet.c{color:var(--call)}
-.seat .act{font:600 10px var(--body);color:var(--muted);height:13px}
-.dealer{position:absolute;width:22px;height:22px;border-radius:50%;background:#fff;color:#000;font:800 11px var(--mono);display:flex;align-items:center;justify-content:center;transform:translate(-50%,-50%);box-shadow:0 2px 4px rgba(0,0,0,.6)}
-/* нижняя панель */
-.dock{background:var(--panel);border-top:1px solid var(--line);border-radius:18px 18px 0 0;padding:14px 16px calc(14px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:10px}
-.who{display:flex;justify-content:space-between;align-items:baseline;font-size:14px;color:var(--muted)}
-.who b{font:800 18px var(--display);color:var(--ink)}
-.row{display:flex;gap:8px}
-.big{flex:1;height:64px;border-radius:14px;font:700 18px var(--body);display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.1}
-.big small{font:600 12px var(--mono);opacity:.8;margin-top:3px}
-.b-fold{background:#2a3230;color:#d5dbd8} .b-call{background:#163055;color:#cfe3ff} .b-raise{background:#123d27;color:#c7f5da} .b-hot{background:#4a1a1d;color:#ffd5d6}
-.b-rec{outline:3px solid var(--ink);outline-offset:-3px}
-.small{flex:1;height:44px;border-radius:12px;background:var(--raised);font-weight:600;font-size:14px}
-.small.wide{flex:2}
-.small:disabled{opacity:.35}
-/* выбор карт */
-.ranks{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
-.ranks button{height:50px;border-radius:12px;background:var(--raised);font:700 20px var(--mono)}
-.ranks button.on{background:var(--ink);color:var(--bg)}
-.suitsel{display:flex;gap:8px}
-.suitsel button{flex:1;height:56px;border-radius:14px;background:var(--raised);font-weight:700;font-size:16px}
-/* рекомендация */
-.rec{display:flex;flex-direction:column;gap:6px}
-.rec .verb{font:800 34px/1 var(--display);letter-spacing:.01em;text-transform:uppercase}
-.rec .verb.raise{color:var(--raise)}.rec .verb.call,.rec .verb.check{color:var(--call)}.rec .verb.allin,.rec .verb.tb{color:var(--hot)}.rec .verb.fold{color:var(--fold)}
-.rec .sub{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font:600 13px var(--mono);color:var(--muted)}
-.tag{padding:2px 8px;border-radius:8px;font:600 11px var(--body);background:var(--raised)}
-.tag.edge{background:#3a3112;color:var(--gold)} .tag.clear{background:#11301f;color:var(--raise)}
-.rec .why{font-size:14px;color:#c9d2ce}
-.kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-.kpi{background:var(--raised);border-radius:12px;padding:8px 10px}
-.kpi span{display:block;font-size:11px;color:var(--muted)} .kpi b{font:700 17px var(--mono)}
-.chips-ico{display:inline-flex;gap:2px;vertical-align:middle}
-.ci{width:14px;height:14px;border-radius:50%;border:2px dashed rgba(255,255,255,.6)}
-/* шторки */
-.scrim{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:10}
-.sheet{position:fixed;left:0;right:0;bottom:0;z-index:11;max-width:520px;margin:0 auto;background:var(--panel);border-radius:20px 20px 0 0;padding:10px 16px calc(16px + env(safe-area-inset-bottom,0px));max-height:88%;overflow-y:auto;display:flex;flex-direction:column;gap:12px}
-.grab{width:40px;height:5px;border-radius:3px;background:var(--line);margin:0 auto 4px}
-.sheet h3{margin:0;font:800 18px var(--display)}
-.amount{text-align:center} .amount b{display:block;font:800 44px/1 var(--display)} .amount span{font:600 13px var(--mono);color:var(--muted)}
-.quick{display:flex;gap:6px;flex-wrap:wrap}
-.quick button{flex:1 0 22%;height:44px;border-radius:12px;background:var(--raised);font:700 16px var(--mono)}
-.chipsrow{display:flex;justify-content:space-between;gap:6px}
-.chip{position:relative;width:58px;height:58px;border-radius:50%;display:flex;align-items:center;justify-content:center;font:800 15px var(--mono);border:5px dashed rgba(255,255,255,.75);box-shadow:0 3px 8px rgba(0,0,0,.5)}
-.chip.w{background:var(--chip-w);color:#222;border-color:rgba(0,0,0,.25)} .chip.r{background:var(--chip-r);color:#fff} .chip.b{background:var(--chip-b);color:#fff} .chip.g{background:var(--chip-g);color:#fff} .chip.k{background:var(--chip-k);color:#fff}
-.chip i{position:absolute;top:-6px;right:-6px;min-width:22px;height:22px;border-radius:11px;background:var(--ink);color:var(--bg);font:700 12px/22px var(--mono);font-style:normal;text-align:center;padding:0 4px}
-.err{min-height:18px;font-size:13px;color:var(--hot);text-align:center}
-.keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
-.keypad button{height:46px;border-radius:12px;background:var(--raised);font:700 18px var(--mono)}
-.field{display:flex;flex-direction:column;gap:6px}
-.field>span{font:600 11px var(--mono);text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
-.seg{display:flex;gap:6px;flex-wrap:wrap}
-.seg button{flex:1;min-width:44px;height:44px;border-radius:12px;background:var(--raised);font:700 15px var(--mono)}
+button:disabled{opacity:.3;cursor:default}
+.app{height:100%;max-width:480px;margin:0 auto;display:flex;flex-direction:column}
+.screen{flex:1;min-height:0;overflow-y:auto;padding:10px 16px 16px;display:flex;flex-direction:column;gap:12px}
+.screen[hidden]{display:none!important}
+.top{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.brand{font:800 18px var(--display);letter-spacing:.02em}
+.brand span{color:var(--raise)}
+.gear{height:34px;padding:0 12px;border-radius:10px;background:var(--raised);font:600 13px var(--mono);color:var(--muted)}
+.lab{font:600 11px var(--mono);text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:6px;display:flex;justify-content:space-between}
+.seg{display:flex;gap:4px;background:var(--panel);border-radius:12px;padding:4px}
+.seg button{flex:1;min-width:0;height:38px;border-radius:9px;font:700 15px var(--mono);color:var(--muted);transition:background .15s,color .15s}
 .seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.seg.txt button{font:600 14px var(--body)}
+.pos-row{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
+.pos-row::-webkit-scrollbar{display:none}
+.chip{flex:none;height:38px;padding:0 12px;border-radius:19px;background:var(--panel);border:1px solid var(--line);font:700 13px var(--mono);color:var(--muted)}
+.chip[aria-pressed="true"]{background:var(--gold);border-color:var(--gold);color:#1a1405}
+.chip.next{background:transparent;border-style:dashed;color:var(--ink)}
+/* вердикт */
+.verdict{border-radius:16px;padding:14px 16px;background:var(--panel);border:1px solid var(--line);display:grid;grid-template-columns:auto 1fr;gap:4px 14px;align-items:center;min-height:92px;transition:background .25s,border-color .25s}
+.verdict .hand{grid-row:span 2;font:800 30px/1 var(--display);min-width:64px}
+.verdict .act{font:800 22px/1.1 var(--display);text-transform:uppercase;letter-spacing:.02em}
+.verdict .why{font-size:13px;color:#c5cfca;grid-column:2}
+.verdict.raise{background:var(--raise-bg);border-color:#1f6b43}.verdict.raise .act{color:var(--raise)}
+.verdict.call{background:var(--call-bg);border-color:#24508c}.verdict.call .act{color:var(--call)}
+.verdict.tb{background:var(--hot-bg);border-color:#7d2a2f}.verdict.tb .act{color:var(--hot)}
+.verdict.fold .act{color:var(--muted)}
+.verdict.idle .act{font-size:15px;text-transform:none;letter-spacing:0;font-family:var(--body);color:var(--muted)}
+/* сетка */
+.grid{display:grid;grid-template-columns:repeat(13,1fr);gap:2px;width:100%}
+.cell{aspect-ratio:1;border-radius:4px;background:var(--fold);color:#6f7b76;font:700 clamp(8px,2.5vw,11px)/1 var(--mono);display:flex;align-items:center;justify-content:center;padding:0;transition:background .3s ease,color .3s ease,transform .1s}
+.cell.raise{background:var(--raise);color:#05250f}
+.cell.call{background:var(--call);color:#06182f}
+.cell.tb{background:var(--hot);color:#2d0507}
+.cell.check{background:#3b4642;color:#c9d2ce}
+.cell.sel{outline:3px solid var(--ink);outline-offset:-1px;transform:scale(1.12);z-index:1;position:relative}
+.legend{display:flex;flex-wrap:wrap;gap:12px;font-size:12px;color:var(--muted)}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+.meter{display:flex;align-items:center;gap:10px;font:600 12px var(--mono);color:var(--muted)}
+.meter .bar{flex:1;height:6px;border-radius:3px;background:var(--fold);overflow:hidden}
+.meter .bar span{display:block;height:100%;background:var(--raise);transition:width .35s ease}
+/* карты */
+.cards{display:flex;gap:6px;align-items:center}
+.pc{width:44px;height:62px;border-radius:8px;background:#f7f7f3;display:flex;flex-direction:column;align-items:center;justify-content:center;font:700 21px/1 var(--mono);box-shadow:0 3px 8px rgba(0,0,0,.5)}
+.pc small{font-size:17px;margin-top:2px}
+.pc.c0{color:#111}.pc.c1{color:#d3262f}.pc.c2{color:#1d5fd8}.pc.c3{color:#13894a}
+.pc.empty{background:transparent;border:2px dashed var(--dim);box-shadow:none;color:var(--dim);font-size:22px}
+.pc.empty.opt{opacity:.35}
+.pc.mini{width:34px;height:48px;font-size:16px;border-radius:6px}.pc.mini small{font-size:13px}
+.slot{display:flex;flex-direction:column;gap:8px;align-items:center;flex:1;padding:12px 8px;border-radius:16px;background:var(--panel);border:1px solid var(--line)}
+.slot .who{font:600 11px var(--mono);text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+.vs{font:800 14px var(--display);color:var(--dim)}
+.duel{display:flex;align-items:stretch;gap:8px}
+.duel .vs{align-self:center}
+.rangebtn{font:700 14px var(--body);text-align:center;color:var(--ink);min-height:62px;display:flex;align-items:center;justify-content:center;padding:0 6px}
+.big-res{display:flex;justify-content:space-between;align-items:baseline}
+.big-res b{font:800 40px/1 var(--display)}
+.big-res b.me{color:var(--raise)} .big-res b.op{color:var(--hot)}
+.split{height:14px;border-radius:7px;overflow:hidden;display:flex;background:var(--fold)}
+.split span{transition:width .4s ease}
+.note{font-size:13px;color:var(--muted)}
+.card-box{border-radius:16px;background:var(--panel);border:1px solid var(--line);padding:14px 16px;display:flex;flex-direction:column;gap:10px}
+.ln{display:flex;justify-content:space-between;gap:12px;font-size:14px;border-bottom:1px solid var(--line);padding-bottom:7px}
+.ln:last-child{border-bottom:0;padding-bottom:0}
+.ln span:first-child{color:var(--muted)} .ln span:last-child{font:600 13px var(--mono);text-align:right}
+.presets{display:flex;gap:6px;flex-wrap:wrap}
+.presets button{height:34px;padding:0 10px;border-radius:17px;background:var(--raised);font:600 12px var(--mono);color:var(--muted)}
+.board{display:flex;gap:5px;justify-content:center}
+.answer{font:800 24px/1.15 var(--display);text-transform:uppercase}
+.answer.raise{color:var(--raise)}.answer.call{color:var(--call)}.answer.fold{color:var(--muted)}.answer.tb{color:var(--hot)}
+/* вкладки */
+.tabs{display:flex;background:var(--panel);border-top:1px solid var(--line);padding:6px 8px calc(6px + env(safe-area-inset-bottom,0px))}
+.tabs button{flex:1;height:52px;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font:600 11px var(--body);color:var(--dim)}
+.tabs button svg{width:22px;height:22px}
+.tabs button[aria-selected="true"]{color:var(--ink)}
+.tabs button[aria-selected="true"] svg{color:var(--raise)}
+/* шторка выбора карт */
+.scrim{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:10}
+.sheet{position:fixed;left:0;right:0;bottom:0;z-index:11;max-width:480px;margin:0 auto;background:var(--panel);border-radius:20px 20px 0 0;padding:10px 12px calc(14px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:10px;max-height:90%;overflow-y:auto}
+.grab{width:40px;height:5px;border-radius:3px;background:var(--line);margin:0 auto}
+.sheet h3{margin:0;font:800 16px var(--display);display:flex;justify-content:space-between;align-items:center}
+.deck{display:grid;grid-template-columns:repeat(13,1fr);gap:3px}
+.dk{height:44px;border-radius:6px;background:var(--raised);font:700 14px/1 var(--mono);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;padding:0}
+.dk small{font-size:12px}
+.dk.d0{color:var(--s0)}.dk.d1{color:var(--s1)}.dk.d2{color:var(--s2)}.dk.d3{color:var(--s3)}
+.dk.on{background:var(--ink);color:var(--bg)}
+.slots{display:flex;gap:6px;justify-content:center}
+.slots .pc{width:38px;height:54px;font-size:18px}
+.slots .pc.cur{outline:2px solid var(--gold);outline-offset:2px}
+.row{display:flex;gap:8px}
+.btn{flex:1;height:46px;border-radius:12px;background:var(--raised);font:600 14px var(--body)}
+.btn.go{background:var(--raise);color:#05250f;font-weight:700}
+.list button{width:100%;text-align:left;padding:12px 4px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:10px;font-size:15px}
+.list button span:last-child{font:600 13px var(--mono);color:var(--muted)}
 .stepper{display:flex;align-items:center;gap:8px}
 .stepper button{width:44px;height:44px;border-radius:12px;background:var(--raised);font:700 20px var(--mono)}
 .stepper b{flex:1;text-align:center;font:700 20px var(--mono)}
-.list{display:flex;flex-direction:column;gap:2px}
-.li{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;padding:9px 0;border-bottom:1px solid var(--line);font-size:14px}
-.li .m{font:600 12px var(--mono);color:var(--muted)}
-.res{font:800 30px var(--display)} .res.pos{color:var(--raise)} .res.neg{color:var(--hot)}
-.detail{display:flex;flex-direction:column;gap:8px;font-size:14px}
-.detail .ln{display:flex;justify-content:space-between;gap:10px;border-bottom:1px solid var(--line);padding-bottom:6px}
-.detail .ln span:first-child{color:var(--muted)} .detail .ln span:last-child{font:600 13px var(--mono);text-align:right}
-.note{font-size:12px;color:var(--dim)}
-@media (prefers-reduced-motion:reduce){.seat.turn .disc{animation:none}}
-@media (max-height:700px){.big{height:56px}.ranks button{height:44px}}
+.spin{opacity:.45}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 
-<div class="app" id="app">
-  <div class="top">
-    <div class="info" id="info"></div>
-    <button class="tbtn" id="btnSeat" type="button">Стол</button>
-    <button class="tbtn" id="btnHist" type="button">Отчёт</button>
-    <button class="tbtn" id="btnSess" type="button">Сессия</button>
-  </div>
-  <div class="table-wrap" id="tableWrap">
-    <div class="felt"></div>
-    <div class="center"><div class="pot" id="pot"></div><div class="hc" id="heroCards"></div></div>
-  </div>
-  <div class="dock" id="dock"></div>
+<div class="app">
+  <!-- ЧАРТ -->
+  <section class="screen" id="scChart">
+    <div class="top"><div class="brand">ЧАРТ<span>.</span></div><button class="gear" id="gear1" type="button">2/5 · дружеский</button></div>
+    <div><div class="lab"><span>Игроков за столом</span><span id="nLab"></span></div><div class="seg" id="nSeg" role="group" aria-label="Игроков за столом"></div></div>
+    <div><div class="lab"><span>Моё место</span><span id="posHint"></span></div><div class="pos-row" id="posRow" role="group" aria-label="Моё место"></div></div>
+    <div><div class="lab"><span>До меня</span></div><div class="seg txt" id="sitSeg" role="group" aria-label="Что было до меня"></div></div>
+    <div id="raiserBox" hidden><div class="lab"><span>Кто поднял</span></div><div class="pos-row" id="raiserRow" role="group" aria-label="Кто поднял"></div></div>
+    <div class="verdict idle" id="verdict" aria-live="polite"></div>
+    <div class="grid" id="grid"></div>
+    <div class="meter"><span id="mLab">0%</span><div class="bar"><span id="mBar"></span></div><span>всех рук</span></div>
+    <div class="legend" id="legend"></div>
+  </section>
+
+  <!-- БИТВА -->
+  <section class="screen" id="scBattle" hidden>
+    <div class="top"><div class="brand">БИТВА<span>.</span></div><button class="gear" id="gear2" type="button">2/5 · дружеский</button></div>
+    <div class="duel">
+      <button class="slot" id="bMe" type="button"><span class="who">Моя рука</span><span class="cards" id="bMeCards"></span></button>
+      <span class="vs">VS</span>
+      <button class="slot" id="bOp" type="button"><span class="who" id="bOpWho">Соперник</span><span class="cards" id="bOpCards"></span></button>
+    </div>
+    <div class="seg txt" id="opMode" role="group" aria-label="Против чего считать"></div>
+    <div class="card-box" id="bRes"></div>
+    <div><div class="lab"><span>Быстрые примеры</span></div><div class="presets" id="presets"></div></div>
+  </section>
+
+  <!-- ФЛОП -->
+  <section class="screen" id="scFlop" hidden>
+    <div class="top"><div class="brand">ФЛОП<span>.</span></div><button class="gear" id="gear3" type="button">2/5 · дружеский</button></div>
+    <button class="slot" id="fPick" type="button" style="flex-direction:row;justify-content:center;gap:14px"><span class="cards" id="fHand"></span><span class="vs">+</span><span class="board" id="fBoard"></span></button>
+    <div><div class="lab"><span>Соперников дошло до флопа</span></div><div class="seg" id="fOpp" role="group" aria-label="Соперников"></div></div>
+    <div class="card-box" id="fRes"></div>
+  </section>
+
+  <!-- ЗАПИСЬ -->
+  <section class="screen" id="scLog" hidden>
+    <div class="top"><div class="brand">ЗАПИСЬ<span>.</span></div></div>
+    <div class="card-box">
+      <div style="font:700 17px var(--body)">Режим записи раздач</div>
+      <div class="note">Полное ведение раздачи: рассадка, ставки по улицам, итог, вскрытия и статистика по соперникам. Включай, когда хочешь собрать аналитику за вечер.</div>
+      <a class="btn go" href="https://tulepbekovaltynhan-web.github.io/Poker/" style="display:flex;align-items:center;justify-content:center;text-decoration:none">Открыть режим записи</a>
+      <div class="note">В макете это ссылка на текущее приложение. В готовой версии режим будет встроен сюда.</div>
+    </div>
+  </section>
+
+  <nav class="tabs" role="tablist" aria-label="Разделы">
+    <button type="button" role="tab" data-tab="scChart" aria-selected="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>Чарт</button>
+    <button type="button" role="tab" data-tab="scBattle" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20 14 10M10 4h6l4 4v6M20 20 10 10M14 4H8L4 8v6"/></svg>Битва</button>
+    <button type="button" role="tab" data-tab="scFlop" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="6" height="12" rx="1.5"/><rect x="9" y="6" width="6" height="12" rx="1.5"/><rect x="16" y="6" width="6" height="12" rx="1.5"/></svg>Флоп</button>
+    <button type="button" role="tab" data-tab="scLog" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 4h11l3 3v13H5z"/><path d="M8 10h8M8 14h8M8 18h5"/></svg>Запись</button>
+  </nav>
 </div>
 <div id="layer"></div>
 
@@ -371,7 +396,9 @@ function countOuts(hole, board) {
     const nb = [...board, c];
     const nc = category(evaluate([...hole, ...nb]));
     const bc = nb.length >= 5 ? category(evaluate(nb)) : -1;
-    if (nc > cur && nc > bc && nc >= 2) outs++;
+    // пара на доске не считается улучшением; две пары, сет и фулл — только с участием карманных карт
+    const madeBy = [2, 3, 6, 7].includes(nc) ? (hole.some(h => cRank(h) === cRank(c)) || cur >= 3) : true;
+    if (nc > cur && nc > bc && nc >= 2 && madeBy) outs++;
   }
   return outs;
 }
@@ -756,955 +783,343 @@ function makeLogic(DB, E) {
 if (typeof module !== "undefined") module.exports = makeLogic;
 
 const E = { RANKS, RANK_ORDER, SUITS, card, cRank, cSuit, cName, handClass, combosOf, ALL_CLASSES, comboCount, evaluate, equityVsRanges, flopOdds, equityVsCombos, category, drawInfo, describeHand, countOuts, boardTexture };
-const L = makeLogic(DB, E);
-
-// ---------- хранилище (удобство, не обязательно) ----------
-const store = { get(k, d) { try { const v = localStorage.getItem(k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } },
-                set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} } };
-const $ = id => document.getElementById(id);
-const buzz = () => { try { navigator.vibrate && navigator.vibrate(12); } catch (e) {} };
-
-// ---------- состояние ----------
-// 10 мест прямоугольного стола по часовой стрелке: 2 у верхнего торца, 3 справа, 2 у нижнего торца, 3 слева
-const SLOTS = [
-  { id: "T1", x: 37, y: 9 }, { id: "T2", x: 63, y: 9 },
-  { id: "R1", x: 90, y: 27 }, { id: "R2", x: 90, y: 50 }, { id: "R3", x: 90, y: 73 },
-  { id: "B1", x: 63, y: 91 }, { id: "B2", x: 37, y: 91 },
-  { id: "L1", x: 10, y: 73 }, { id: "L2", x: 10, y: 50 }, { id: "L3", x: 10, y: 27 },
-];
-const DEF = { sb: 2, bb: 5, buyin: 400, buyinByn: 40, profile: "friendly", invested: 400, myStack: 400, handNo: 0,
-  slots: [true, false, true, true, true, true, false, true, true, false], heroSlot: 5, dealerSlot: 3, slotStacks: Array(10).fill(null) };
-let S = Object.assign({}, DEF, store.get("pk2_session", {}));
-if (!Array.isArray(S.slots) || S.slots.length !== 10) Object.assign(S, { slots: DEF.slots.slice(), heroSlot: DEF.heroSlot, dealerSlot: DEF.dealerSlot, slotStacks: Array(10).fill(null) });
-if (!Array.isArray(S.slotNames) || S.slotNames.length !== 10) S.slotNames = Array(10).fill("");
-const newSid = () => "s" + Date.now().toString(36);
-if (!S.sid) { S.sid = newSid(); S.sessionStart = Date.now(); }
-let HIST = store.get("pk2_hist", []).filter(h => h.v === 2);
-let QUICK = store.get("pk2_quick", { 10: 3, 15: 3, 20: 2, 25: 1 });
-let H = null, undoStack = [], pick = { r: [], suited: null }, firstRun = !store.get("pk2_session", null);
-let HERO = 0, EDIT = false, TOOL = "seat", EDIT_MSG = "";
-const chipVal = () => S.buyinByn / S.buyin;
-const byn = x => (x * chipVal()).toFixed(2).replace(".", ",");
-if (!Array.isArray(S.sitOut) || S.sitOut.length !== 10) S.sitOut = Array(10).fill(false);
-// столы на 3–4 игрока (если много людей пропускают раздачи)
 DB.tables["4"] = DB.tables["4"] || [{ id: "CO", behind: 3 }, { id: "BTN", behind: 2 }, { id: "SB", behind: 1 }, { id: "BB", behind: 0 }];
 DB.tables["3"] = DB.tables["3"] || [{ id: "BTN", behind: 2 }, { id: "SB", behind: 1 }, { id: "BB", behind: 0 }];
-const seated = () => SLOTS.map((_, i) => i).filter(i => S.slots[i]);
-// в раздаче: сидит и не пропускает (ты всегда в игре)
-const occ = () => seated().filter(i => !S.sitOut[i] || i === S.heroSlot);
-// пересчёт игровых мест из рассадки: место в раздаче = порядковый номер занятого кресла по часовой стрелке
-function sync() {
-  let o = occ();
-  if (!o.includes(S.dealerSlot)) { const all = SLOTS.map((_, i) => i); for (let k = 1; k <= 10; k++) { const c = all[(S.dealerSlot + k) % 10]; if (o.includes(c)) { S.dealerSlot = c; break; } } }
-  S.n = o.length; HERO = o.indexOf(S.heroSlot); S.dealer = o.indexOf(S.dealerSlot);
-  S.stacks = o.map(i => i === S.heroSlot ? S.myStack : (S.slotStacks[i] ?? S.buyin));
-}
-const save = () => { store.set("pk2_session", S); };
+const L = makeLogic(DB, E);
+const $ = id => document.getElementById(id);
+const buzz = () => { try { navigator.vibrate && navigator.vibrate(10); } catch (e) {} };
+const store = { get(k, d) { try { const v = localStorage.getItem(k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } }, set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} } };
+const rk = r => r === "T" ? "10" : r;
+const cardHTML = (c, cls = "") => c === null || c === undefined ? `<div class="pc empty ${cls}">+</div>` : `<div class="pc c${E.cSuit(c)} ${cls}">${rk(E.RANKS[E.cRank(c)])}<small>${E.SUITS[E.cSuit(c)]}</small></div>`;
 
-function startHand() {
-  sync();
-  H = L.newHand(S); H.decisions = []; H.suitsKnown = false; H.askedSuits = []; undoStack = []; pick = { r: [], suited: null };
-  S.handNo++; save(); render();
-}
-function nextHand() { const o = occ(); S.dealerSlot = o[(o.indexOf(S.dealerSlot) + 1) % o.length]; startHand(); }
+let ST = Object.assign({ n: 7, pos: "CO", sit: "open", raiser: null, hand: null, bb: 5, sb: 2, prof: "friendly", tab: "scChart",
+  bMe: [null, null], bOp: [null, null], opMode: "hand", opRange: "early", fHand: [null, null], fBoard: [null, null, null, null, null], fOpp: 1 }, store.get("v2", {}));
+const save = () => store.set("v2", ST);
+const FR = () => ST.prof === "friendly";
 
-// ---------- геометрия стола ----------
-const sideCls = k => ({ T: " top", B: " bot", R: " rgt", L: " lft" })[SLOTS[k].id[0]];
-function puckXY(slot) { const s = SLOTS[slot], dx = 50 - s.x, dy = 50 - s.y, k = 12 / Math.hypot(dx, dy * 0.8); return { x: s.x + dx * k, y: s.y + dy * k * 0.8 }; }
-const shortN = x => x >= 1000 ? (x / 1000).toFixed(1).replace(".0", "") + "k" : String(x);
-
-function lastActOf(seat) {
-  for (let i = H.actions.length - 1; i >= 0; i--) { const a = H.actions[i]; if (a.seat === seat) return a; }
-  return null;
+// ---------- позиции ----------
+const positions = n => DB.tables[String(n)].map(t => t.id).concat(DB.tables[String(n)].some(t => t.id === "SB") ? [] : ["SB", "BB"]);
+const behindOf = (n, id) => { const t = DB.tables[String(n)].find(x => x.id === id); return id === "SB" ? 1 : id === "BB" ? 0 : t ? t.behind : 2; };
+// подписи мест: Д, МБ, ББ, остальные — номера по порядку хода после ББ (1 ходит первым)
+function lbl(id, n = ST.n) {
+  if (id === "BTN") return "Д"; if (id === "SB") return "МБ"; if (id === "BB") return "ББ";
+  const ids = DB.tables[String(n)].map(t => t.id).filter(x => !["BTN", "SB", "BB"].includes(x));
+  const i = ids.indexOf(id); return i >= 0 ? String(i + 1) : id;
 }
-function actWord(a, seat) {
-  if (H.folded[seat]) return "фолд";
-  if (!a) return "";
-  if (a.type === "raise") return "рейз";
-  if (a.type === "call") return a.check ? "чек" : (H.actions.slice(0, H.actions.indexOf(a)).some(x => x.type === "raise") ? "колл" : "лимп");
-  return "";
+const fromTxt = id => { const l = lbl(id); return l === "Д" ? "с дилера" : /^\d/.test(l) ? `с места ${l}` : `с ${l}`; };
+const ofTxt = id => { const l = lbl(id); return l === "Д" ? "дилера" : /^\d/.test(l) ? `места ${l}` : l; };
+function posHintOf(id, n = ST.n) {
+  if (id === "BTN") return "дилер, лучшее место"; if (id === "SB") return "малый блайнд"; if (id === "BB") return "большой блайнд";
+  const k = +lbl(id, n), last = DB.tables[String(n)].filter(t => !["BTN", "SB", "BB"].includes(t.id)).length;
+  return k === 1 ? "ходишь первым после ББ" : k === last ? "сразу перед дилером" : `${k}-й после ББ`;
 }
 
-function renderTable() {
-  const wrap = $("tableWrap");
-  wrap.querySelectorAll(".seat,.dealer").forEach(e => e.remove());
-  const o = occ();
-  if (EDIT) {
-    // режим рассадки: все 10 кресел, позиции считаются по текущей раздаче дилера
-    SLOTS.forEach((sl, k) => {
-      const on = S.slots[k], i = o.indexOf(k);
-      const p = on && i >= 0 && o.length >= 3 ? L.posInfo(o.length, o.indexOf(S.dealerSlot), i) : { id: "нет" };
-      const el = document.createElement("button"); el.type = "button";
-      el.className = "seat" + sideCls(k) + (on ? "" : " empty") + (k === S.heroSlot ? " hero" : "");
-      el.style.left = sl.x + "%"; el.style.top = sl.y + "%";
-      el.innerHTML = on ? `<span class="disc"><span class="pos">${p.id}</span><span class="stk">${k === S.heroSlot ? "ТЫ" : "игрок"}</span></span>` : `<span class="disc">+</span>`;
-      el.setAttribute("aria-label", on ? `Кресло ${sl.id}, ${p.id}` : `Пустое кресло ${sl.id}`);
-      el.onclick = () => editTap(k);
-      wrap.appendChild(el);
-    });
-    const d = document.createElement("div"); d.className = "dealer"; d.textContent = "D";
-    const pxy = puckXY(S.dealerSlot); d.style.left = pxy.x + "%"; d.style.top = pxy.y + "%"; wrap.appendChild(d);
-    $("pot").innerHTML = `<b>${o.length}</b>игроков`; $("heroCards").innerHTML = ""; $("heroCards").onclick = null;
-    $("info").innerHTML = `<b>Рассадка</b> · нажимай на кресла`;
-    return;
+// ---------- чарт: решение для каждой руки ----------
+const TOP = L.TOP, ORDER = L.ORDER;
+const topRange = pct => ORDER.filter(h => TOP[h] <= pct + 1e-9);
+const gap = h => Math.abs(E.RANK_ORDER.indexOf(h[0]) - E.RANK_ORDER.indexOf(h[1]));
+const speculative = h => h.length === 2 || (h[2] === "s" && (h[0] === "A" || (gap(h) <= 2 && E.RANK_ORDER.indexOf(h[1]) <= 9)));
+const BLUFF3 = new Set(["A5s", "A4s", "76s", "65s", "54s", "K9s", "Q9s", "J9s", "KQo"]);
+const pctOf = hs => hs.reduce((a, h) => a + E.comboCount(h), 0) / 1326 * 100;
+
+function chart() {
+  const n = ST.n, me = ST.pos, bb = ST.bb, out = {}; let size = "", head = "";
+  const order = positions(n), idx = order.indexOf(me);
+  if (ST.sit === "open") {
+    if (me === "BB") { ALL_CLASSES.forEach(h => out[h] = "check"); return { out, kind: "walk", head: "Все сбросили до тебя — банк твой" }; }
+    let rng = me === "SB" ? DB.rfi_sb.hands : DB.rfi_by_behind[String(behindOf(n, me))].hands;
+    if (FR()) rng = rng.filter(h => !(h[2] === "o" && TOP[h] > 15));
+    const s = new Set(rng); ALL_CLASSES.forEach(h => out[h] = s.has(h) ? "raise" : "fold");
+    size = `${(FR() ? 4 : me === "SB" ? 3 : 3) * bb}`;
+    head = `Открывай рейзом до ${size}`;
+    return { out, kind: "open", size, head };
   }
-  for (let i = 0; i < S.n; i++) {
-    const slot = o[i], sl = SLOTS[slot];
-    const p = L.posInfo(S.n, H.dealer, i);
-    const el = document.createElement("button");
-    el.type = "button";
-    el.className = "seat" + sideCls(slot) + (i === HERO ? " hero" : "") + (H.folded[i] ? " folded" : "") + (H.toAct === i && H.phase === "betting" ? " turn" : "");
-    el.style.left = sl.x + "%"; el.style.top = sl.y + "%";
-    const rem = L.remaining(H, i);
-    const a = lastActOf(i);
-    const bet = H.bets[i] ? `<span class="bet ${a && a.type === "raise" ? "r" : "c"}">${H.bets[i]}</span>` : `<span class="bet"></span>`;
-    el.innerHTML = `<span class="disc"><span class="pos">${p.id}</span><span class="stk">${shortN(rem)}</span></span><span class="meta">${bet}<span class="act">${i === HERO ? "ТЫ" : (actWord(a, i) || (S.slotNames[slot] || "").slice(0, 7))}</span></span>`;
-    el.setAttribute("aria-label", `Место ${p.id}, стек ${rem}`);
-    el.onclick = () => openSeat(i);
-    wrap.appendChild(el);
+  if (ST.sit === "limp") {
+    const isoT = me === "BB" ? 8 : FR() ? 12 : 15;
+    const iso = new Set(topRange(isoT));
+    ALL_CLASSES.forEach(h => out[h] = iso.has(h) ? "raise" : me === "BB" ? "check" : speculative(h) ? "call" : "fold");
+    size = `${(FR() ? 5 : 4) * bb}+${bb}`;
+    return { out, kind: "limp", size, head: `Рейз до ${(FR() ? 5 : 4) * bb} + ${bb} за каждого лимпера` };
   }
-  SLOTS.forEach((sl, k) => {
-    if (S.slots[k] && !o.includes(k)) {
-      const e = document.createElement("button"); e.type = "button"; e.className = "seat away" + sideCls(k); e.style.left = sl.x + "%"; e.style.top = sl.y + "%";
-      e.innerHTML = `<span class="disc"><span class="pos">нет</span><span class="stk">${shortN(S.slotStacks[k] ?? S.buyin)}</span></span><span class="meta"><span class="bet"></span><span class="act">${(S.slotNames[k] || "отошёл").slice(0, 7)}</span></span>`;
-      e.setAttribute("aria-label", "Игрок пропускает раздачи"); e.onclick = () => openAway(k); wrap.appendChild(e);
-    }
-  });
-  SLOTS.forEach((sl, k) => { if (!S.slots[k]) { const e = document.createElement("div"); e.className = "seat ghost" + sideCls(k); e.style.left = sl.x + "%"; e.style.top = sl.y + "%"; e.innerHTML = '<span class="disc"></span>'; wrap.appendChild(e); } });
-  const d = document.createElement("div"); d.className = "dealer"; d.textContent = "D";
-  const pxy = puckXY(o[H.dealer]); d.style.left = pxy.x + "%"; d.style.top = pxy.y + "%"; wrap.appendChild(d);
-  const P = L.pot(H);
-  $("pot").innerHTML = `<b>${P}</b>банк · ${(P / S.bb).toFixed(1)} BB`;
-  const hc = $("heroCards");
-  const brd = H.board && H.board.length ? `<div class="hc board">${H.board.map(cardHTML).join("")}</div>` : "";
-  hc.innerHTML = brd + `<div class="hc">${H.cards.length === 2 ? H.cards.map(cardHTML).join("") : `<div class="pc empty">?</div><div class="pc empty">?</div>`}</div>`;
-  hc.onclick = () => { if ((H.phase === "betting" || H.phase === "cards") && !H.street && !H.actions.some(a => a.seat === HERO)) { H.cards = []; PK = { cards: [], rank: null }; pick = { r: [], suited: null }; H.phase = "cards"; render(); } };
-  const me = L.posInfo(S.n, H.dealer, HERO);
-  $("info").innerHTML = `<b>${S.sb}/${S.bb}</b> · ${S.n} игр. · ты <b>${me.id}</b> · ${S.myStack}`;
+  // был рейз
+  const r = ST.raiser; const rb = behindOf(n, r);
+  const early = !["SB", "BB"].includes(r) && rb >= 5;
+  const g = me === "BB" ? (early ? DB.facing_open.bb_vs_early : DB.bb_vs_btn) : (early ? DB.facing_open.early : DB.facing_open.late);
+  const tb = new Set(g["3bet"].hands), cl = new Set(g.call.hands);
+  if (FR()) BLUFF3.forEach(h => { if (tb.has(h)) { tb.delete(h); cl.add(h); } });
+  const ip = !["SB", "BB"].includes(me);
+  ALL_CLASSES.forEach(h => out[h] = tb.has(h) ? "tb" : cl.has(h) ? (me === "SB" ? (early ? "fold" : "tb") : "call") : "fold");
+  return { out, kind: "raise", early, head: `3-бет ×${ip ? 3 : 4} от его ставки`, ip };
 }
+const ACT = { raise: "Рейз", call: "Колл", tb: "3-бет", fold: "Фолд", check: "Чек" };
 
-// ---------- режим рассадки ----------
-function editTap(k) {
-  EDIT_MSG = "";
-  const n = seated().length;
-  if (TOOL === "seat") {
-    if (S.slots[k]) {
-      if (k === S.heroSlot) EDIT_MSG = "Это твоё кресло. Сначала пересядь в другое.";
-      else if (n <= 5) EDIT_MSG = "Минимум 5 игроков.";
-      else { S.slots[k] = false; if (k === S.dealerSlot) { const o = occ(); S.dealerSlot = o.find(i => i > k) ?? o[0]; } }
-    } else if (n >= 10) EDIT_MSG = "Максимум 10 игроков.";
-    else S.slots[k] = true;
-  } else {
-    if (!S.slots[k]) { if (n >= 10) { EDIT_MSG = "Максимум 10 игроков."; render(); return; } S.slots[k] = true; }
-    if (TOOL === "hero") { S.heroSlot = k; S.sitOut[k] = false; } else { S.dealerSlot = k; S.sitOut[k] = false; }
-  }
-  buzz(); save(); render();
+// ---------- отрисовка чарта ----------
+function seg(el, items, cur, fn) {
+  el.innerHTML = "";
+  items.forEach(([v, l, dis]) => { const b = document.createElement("button"); b.type = "button"; b.textContent = l; b.disabled = !!dis; b.setAttribute("aria-pressed", String(v === cur)); b.onclick = () => { buzz(); fn(v); }; el.appendChild(b); });
 }
-function dockEdit(d) {
-  const n = seated().length;
-  const tools = [["seat", "Игрок есть / нет"], ["hero", "Я сижу здесь"], ["dealer", "Дилер здесь"]];
-  const hint = { seat: "Нажми на кресло, чтобы посадить игрока или убрать его.", hero: "Нажми на кресло, где сидишь ты.", dealer: "Нажми на кресло дилера. Дальше он сдвигается сам каждую раздачу." }[TOOL];
-  d.innerHTML = `<div class="who"><span>Рассадка за столом</span><b>${n} игроков</b></div>
-    <div class="seg" id="eT">${tools.map(([v, l]) => `<button type="button" data-t="${v}" aria-pressed="${v === TOOL}">${l}</button>`).join("")}</div>
-    <div class="note" style="font-size:13px;color:var(--muted)">${hint}</div>
-    <div class="err">${EDIT_MSG}</div>
-    <button type="button" class="big b-raise" id="eOk" style="flex:none;height:56px">Готово — начать раздачу</button>`;
-  d.querySelectorAll("[data-t]").forEach(b => b.onclick = () => { TOOL = b.dataset.t; EDIT_MSG = ""; renderDock(); });
-  $("eOk").onclick = () => { EDIT = false; save(); startHand(); };
-}
-function openEdit() { closeSheet(); EDIT = true; TOOL = "seat"; EDIT_MSG = ""; render(); }
-
-const cardHTML = c => `<div class="pc s${E.cSuit(c)}">${E.RANKS[E.cRank(c)] === "T" ? "10" : E.RANKS[E.cRank(c)]}<small>${E.SUITS[E.cSuit(c)]}</small></div>`;
-
-// ---------- нижняя панель ----------
-function render() { renderTable(); renderDock(); }
-function renderDock() {
-  const d = $("dock");
-  if (EDIT) return dockEdit(d);
-  if (H.phase === "cards") return dockCards(d);
-  if (H.phase === "board") return dockBoard(d);
-  if ((H.phase === "betting" || H.phase === "board") && H.board.length && needSuitQuestion() !== null && !H.folded[HERO]) return dockSuit(d);
-  if (H.phase === "betting") return H.toAct === HERO ? dockHero(d) : dockVillain(d);
-  return dockDone(d);
-}
-const STREET = ["Префлоп", "Флоп", "Тёрн", "Ривер"];
-const rankTxt = x => x === "T" ? "10" : x;
-
-// точный ввод карт: номинал → масть; занятые карты недоступны
-let PK = { cards: [], rank: null };
-function pickerHTML(title, count, used) {
-  const usedSet = new Set(used);
-  const chosen = PK.cards.map(cName2).join(" ");
-  let html = `<div class="who"><span>${title}</span><b>${chosen || "—"}${PK.rank ? " " + rankTxt(PK.rank) + "?" : ""}</b></div>`;
-  if (!PK.rank) {
-    html += `<div class="ranks">${"AKQJT98765432".split("").map(x => {
-      const free = [0, 1, 2, 3].some(s => !usedSet.has(E.card(x, s)) && !PK.cards.includes(E.card(x, s)));
-      return `<button type="button" data-r="${x}" ${free ? "" : "disabled style='opacity:.25'"}>${rankTxt(x)}</button>`; }).join("")}<button type="button" data-r="back" aria-label="Стереть">⌫</button></div>`;
-  } else {
-    html += `<div class="suitsel">${[0, 1, 2, 3].map(s => { const c = E.card(PK.rank, s), off = usedSet.has(c) || PK.cards.includes(c);
-      return `<button type="button" data-s="${s}" ${off ? "disabled style='opacity:.25'" : ""} style="font-size:30px;height:72px;color:${["#eef3f0", "#ff5f63", "#5ea3ff", "#38d47c"][s]}">${E.SUITS[s]}</button>`; }).join("")}</div>
-      <button type="button" class="small" data-r="back" style="flex:none">← другой номинал</button>`;
-  }
-  return html;
-}
-function bindPicker(root, count, onDone, rerender) {
-  root.querySelectorAll("[data-r]").forEach(b => b.onclick = () => {
-    const v = b.dataset.r;
-    if (v === "back") { if (PK.rank) PK.rank = null; else PK.cards.pop(); }
-    else PK.rank = v;
-    buzz(); rerender();
-  });
-  root.querySelectorAll("[data-s]").forEach(b => b.onclick = () => {
-    PK.cards.push(E.card(PK.rank, +b.dataset.s)); PK.rank = null; buzz();
-    if (PK.cards.length === count) { const c = PK.cards.slice(); PK = { cards: [], rank: null }; onDone(c); } else rerender();
-  });
-}
-function dockCards(d) {
-  if (PK.exact) {
-    d.innerHTML = pickerHTML("Твои карты точно", 2, []) + `<button type="button" class="small" id="cQ" style="flex:none">← быстрый ввод</button>`;
-    bindPicker(d, 2, cards => { H.cards = cards; H.suitsKnown = true; PK = { cards: [], rank: null }; cardsDone(); }, renderDock);
-    $("cQ").onclick = () => { PK = { cards: [], rank: null }; renderDock(); };
-    return;
-  }
-  const r = pick.r;
-  d.innerHTML = `<div class="who"><span>Твои карты</span><b>${r.map(rankTxt).join(" ") || "—"}</b></div>
-    <div class="ranks">${"AKQJT98765432".split("").map(x => `<button type="button" data-r="${x}" class="${r.includes(x) ? "on" : ""}">${rankTxt(x)}</button>`).join("")}<button type="button" data-r="back" aria-label="Стереть">⌫</button></div>
-    ${r.length === 2 && r[0] !== r[1] ? `<div class="suitsel"><button type="button" data-q="1">Одной масти</button><button type="button" data-q="0">Разной масти</button></div>` : ""}
-    <button type="button" class="small" id="cX" style="flex:none">Ввести с мастями</button>`;
-  d.querySelectorAll("[data-r]").forEach(b => b.onclick = () => {
-    const v = b.dataset.r;
-    if (v === "back") pick.r.pop(); else if (pick.r.length < 2) pick.r.push(v);
-    if (pick.r.length === 2 && pick.r[0] === pick.r[1]) return quickCards(false);
-    buzz(); renderDock();
-  });
-  d.querySelectorAll("[data-q]").forEach(b => b.onclick = () => quickCards(b.dataset.q === "1"));
-  $("cX").onclick = () => { PK = { cards: [], rank: null, exact: true }; renderDock(); };
-}
-// быстрый ввод: масти пока условные, уточним, когда на доске появится флеш-угроза
-function quickCards(suited) {
-  const [a, b] = pick.r;
-  H.cardSpec = { a, b, suited, pair: a === b, fixed: [null, null], not: [[], []] };
-  H.suitsKnown = false;
-  H.cards = assignSuits(H.cardSpec, []);
-  buzz(); cardsDone();
-}
-function cardsDone() { H.phase = "betting"; if (H.toAct === null) H.phase = "done"; H.rec = null; render(); }
-// подобрать масти по ограничениям: fixed — известная масть, not — каких мастей точно нет
-function assignSuits(sp, board) {
-  const used = new Set(board), boardSuits = [0, 0, 0, 0]; board.forEach(c => boardSuits[E.cSuit(c)]++);
-  let best = null, bestScore = 1e9;
-  for (let s1 = 0; s1 < 4; s1++) for (let s2 = 0; s2 < 4; s2++) {
-    if (sp.suited ? s1 !== s2 : s1 === s2) continue;
-    if (sp.fixed[0] !== null && s1 !== sp.fixed[0]) continue;
-    if (sp.fixed[1] !== null && s2 !== sp.fixed[1]) continue;
-    if (sp.not[0].includes(s1) || sp.not[1].includes(s2)) continue;
-    const c1 = E.card(sp.a, s1), c2 = E.card(sp.b, s2);
-    if (used.has(c1) || used.has(c2) || c1 === c2) continue;
-    const score = (sp.fixed[0] === null ? boardSuits[s1] : 0) + (sp.fixed[1] === null ? boardSuits[s2] : 0); // неизвестные масти — подальше от доски
-    if (score < bestScore) { bestScore = score; best = [c1, c2]; }
-  }
-  return best || [E.card(sp.a, 0), E.card(sp.b, sp.suited ? 0 : 1)];
-}
-// после выхода доски: нужна ли масть героя
-function needSuitQuestion() {
-  if (H.suitsKnown || !H.cardSpec) return null;
-  const sc = [0, 0, 0, 0]; H.board.forEach(c => sc[E.cSuit(c)]++);
-  const s = [0, 1, 2, 3].filter(x => sc[x] >= 2 && !H.askedSuits.includes(x)).sort((x, y) => sc[y] - sc[x])[0];
-  return s === undefined ? null : s;
-}
-function dockSuit(d) {
-  const s = needSuitQuestion(), sp = H.cardSpec, sym = E.SUITS[s];
-  const col = ["#eef3f0", "#ff5f63", "#5ea3ff", "#38d47c"][s];
-  const opts = [];
-  if (sp.suited) { opts.push(["both", `Да, обе ${sym}`]); opts.push(["none", `Нет ${sym}`]); }
-  else if (sp.pair) { opts.push(["one0", `Да, одна ${sym}`]); opts.push(["none", `Нет ${sym}`]); }
-  else { opts.push(["one0", `Да: ${rankTxt(sp.a)}${sym}`]); opts.push(["one1", `Да: ${rankTxt(sp.b)}${sym}`]); opts.push(["none", `Нет ${sym}`]); }
-  d.innerHTML = `<div class="who"><span>На доске две+ карты</span><b style="color:${col}">Есть у тебя ${sym}?</b></div>
-    <div class="note">Нужно, чтобы правильно посчитать флеш и флеш-дро.</div>
-    <div class="row">${opts.map(([v, l]) => `<button type="button" class="big b-call" data-o="${v}" style="font-size:16px">${l}</button>`).join("")}</div>`;
-  d.querySelectorAll("[data-o]").forEach(b => b.onclick = () => {
-    const v = b.dataset.o; H.askedSuits.push(s);
-    if (v === "both") { sp.fixed = [s, s]; H.suitsKnown = true; }
-    else if (v === "one0") { sp.fixed[0] = s; if (sp.pair || sp.fixed[1] !== null) H.suitsKnown = true; sp.not[1].push(s); }
-    else if (v === "one1") { sp.fixed[1] = s; sp.not[0].push(s); }
-    else { sp.not[0].push(s); sp.not[1].push(s); }
-    if (!sp.suited && sp.fixed[0] !== null && sp.fixed[1] !== null) H.suitsKnown = true;
-    H.cards = assignSuits(sp, H.board); H.rec = null; buzz(); render();
-  });
-}
-function dockBoard(d) {
-  const n = H.street === 0 ? 3 : 1;
-  d.innerHTML = pickerHTML(`${STREET[H.street + 1]}: ${n === 3 ? "три карты" : "одна карта"}`, n, [...(H.suitsKnown ? H.cards : []), ...H.board])
-    + `<div class="row"><button type="button" class="small" id="bU" ${undoStack.length ? "" : "disabled"}>Отменить</button><button type="button" class="small wide" id="bSkip">Без подсказок дальше → итог</button></div>`;
-  bindPicker(d, n, cards => { snapshot(); H.board.push(...cards); if (!H.suitsKnown && H.cardSpec) H.cards = assignSuits(H.cardSpec, H.board); L.newStreet(S, H); afterStreet(); H.rec = null; render(); }, renderDock);
-  $("bU").onclick = () => { PK = { cards: [], rank: null }; undo(); };
-  $("bSkip").onclick = () => { snapshot(); H.phase = "done"; render(); };
-}
-// конец улицы: следующая улица, вскрытие или конец раздачи
-function afterStreet() {
-  if (H.phase !== "street-end") return;
-  const alive = L.active(H);
-  const canAct = alive.filter(s => L.remaining(H, s) > 0).length;
-  if (alive.length <= 1 || H.folded[HERO] || H.street >= 3 || canAct <= 1) H.phase = "done";
-  else H.phase = "board";
-}
-
-function snapshot() { undoStack.push(JSON.stringify(H)); }
-function undo() { if (!undoStack.length) return; H = JSON.parse(undoStack.pop()); buzz(); render(); }
-function doAct(seat, type, to) {
-  snapshot(); L.act(S, H, seat, type, to); buzz();
-  if (seat === HERO && H.rec) { const me = type === "raise" && L.remaining(H, HERO) === 0 ? "allin" : type === "call" && H.actions[H.actions.length - 1].check ? "check" : type; H.decisions.push({ rec: H.rec.action, amt: H.rec.amount, me, street: H.street }); }
-  if (seat === HERO && type === "fold") { H.phase = "done"; H.toAct = null; }
-  if (type === "raise" && seat !== HERO) { QUICK[to] = (QUICK[to] || 0) + 1; store.set("pk2_quick", QUICK); }
-  afterStreet();
-  render();
-}
-
-// действие по умолчанию для пропущенных: префлоп и против ставки — фолд, без ставки — чек
-const defaultAct = s => (H.currentBet - H.bets[s] === 0 ? "call" : "fold");
-// отметить действие игрока не по очереди: все до него получают действие по умолчанию
-function canReach(seat) {
-  if (H.phase !== "betting" || H.toAct === null || !H.need.includes(seat)) return false;
-  let s = H.toAct;
-  for (let k = 0; k < S.n; k++) {
-    if (s === seat) return true;
-    if (s === HERO) return false;
-    let g = 0; do { s = (s + 1) % S.n; } while (!H.need.includes(s) && g++ < S.n);
-  }
-  return false;
-}
-function actAt(seat, type, to) {
-  snapshot();
-  let guard = 0;
-  while (H.phase === "betting" && H.toAct !== null && H.toAct !== seat && H.toAct !== HERO && guard++ < 20) L.act(S, H, H.toAct, defaultAct(H.toAct));
-  if (H.phase === "betting" && H.toAct === seat) { L.act(S, H, seat, type, to); if (type === "raise") { QUICK[to] = (QUICK[to] || 0) + 1; store.set("pk2_quick", QUICK); } }
-  afterStreet(); buzz(); render();
-}
-function skipToHero() {
-  snapshot(); let guard = 0;
-  while (H.phase === "betting" && H.toAct !== HERO && H.toAct !== null && guard++ < 30) L.act(S, H, H.toAct, defaultAct(H.toAct));
-  afterStreet(); buzz(); render();
-}
-function dockVillain(d) {
-  const s = H.toAct, p = L.posInfo(S.n, H.dealer, s);
-  const toCall = H.currentBet - H.bets[s];
-  const heroPending = !H.actions.some(a => a.seat === HERO && (a.street || 0) === H.street) && !H.folded[HERO];
-  const pre = H.street === 0;
-  const defWord = defaultAct(s) === "call" ? "чек" : "фолд";
-  const shortcut = (heroPending ? "Все до меня" : "Остальные") + " — " + defWord;
-  d.innerHTML = `
-    <div class="who"><span>${STREET[H.street]} · ходит</span><b>${seatName(s)}</b><span>${H.currentBet ? "ставка " + H.currentBet : "ставок нет"}</span></div>
-    <button type="button" class="big b-call" id="vAll" style="flex:none;height:56px">${shortcut}</button>
-    <div class="note" style="text-align:center">или нажми на игрока за столом, который вошёл в банк</div>
-    <div class="row">
-      <button type="button" class="small" id="vF">Фолд</button>
-      <button type="button" class="small" id="vC">${toCall === 0 ? "Чек" : (pre && H.currentBet === S.bb ? "Лимп " : "Колл ") + (toCall ? H.currentBet : "")}</button>
-      <button type="button" class="small" id="vR">${!pre && H.currentBet === 0 ? "Ставка" : "Рейз"}</button>
-      <button type="button" class="small" id="vU" ${undoStack.length ? "" : "disabled"}>↶</button>
-    </div>`;
-  $("vF").onclick = () => doAct(s, "fold");
-  $("vC").onclick = () => doAct(s, "call");
-  $("vR").onclick = () => openBet(s, null);
-  $("vAll").onclick = skipToHero;
-  $("vU").onclick = undo;
-}
-
-const VERB = { fold: "Фолд", check: "Чек", call: "Колл", raise: "Рейз", allin: "Олл-ин" };
-function chipsFor(x) {
-  const den = [[50, "k"], [20, "g"], [10, "b"], [5, "r"], [1, "w"]], out = [];
-  for (const [v, c] of den) while (x >= v && out.length < 8) { out.push(c); x -= v; }
-  return out;
-}
-const chipDots = x => `<span class="chips-ico">${chipsFor(x).map(c => `<span class="ci" style="background:var(--chip-${c})"></span>`).join("")}</span>`;
-
-function dockHero(d) {
-  const key = H.street * 1000 + H.actions.length;
-  if (!H.rec || H.rec.key !== key) { H.rec = H.street ? L.recommendPost(S, H, HERO) : L.recommend(S, H, HERO); H.rec.key = key; }
-  const R = H.rec, post = !!R.post;
-  let verbCls = R.action === "raise" && R.nR >= 1 ? "tb" : R.action, verbTxt = R.action === "raise" && R.nR >= 1 ? (R.nR === 1 ? "3-бет" : "4-бет") : VERB[R.action];
-  if (post && R.action === "raise") { verbTxt = R.toCall ? "Рейз до" : "Ставка"; verbCls = R.toCall ? "tb" : "raise"; }
-  const amt = (R.action === "raise" || R.action === "allin") ? R.amount : R.action === "call" ? R.amount : 0;
-  const eqTxt = R.eq !== null ? (R.eq * 100).toFixed(0) + "%" : (R.randomEq * 100).toFixed(0) + "%*";
-  const showNeed = R.toCall && (post || R.nR > 0 || R.limpers > 0);
-  d.innerHTML = `
-    <div class="rec">
-      <div class="who"><span>${STREET[H.street]} · ${R.pos} · ${post ? R.desc.text : R.cls}</span><button type="button" class="tag" id="hDet">Подробно</button></div>
-      <div class="verb ${verbCls}">${verbTxt}${amt ? " " + amt : ""}</div>
-      <div class="sub">${amt ? chipDots(amt) + `<span>${(amt / S.bb).toFixed(1)} BB · ${byn(amt)} BYN</span>` : ""}<span class="tag ${R.conf}">${R.conf === "edge" ? "пограничное решение" : "чёткое решение"}</span></div>
-      <div class="why">${R.why}</div>
-      <div class="kpis">
-        <div class="kpi"><span>Эквити</span><b>${eqTxt}</b></div>
-        <div class="kpi"><span>Нужно для колла</span><b>${showNeed ? (R.need * 100).toFixed(0) + "%" : "—"}</b></div>
-        <div class="kpi"><span>${post ? "SPR" : "Эфф. стек"}</span><b>${post ? R.spr.toFixed(1) : R.effBB.toFixed(0) + " BB"}</b></div>
-      </div>
-    </div>
-    <div class="row">
-      <button type="button" class="big b-fold ${R.action === "fold" ? "b-rec" : ""}" id="hF">Фолд</button>
-      <button type="button" class="big b-call ${["call", "check"].includes(R.action) ? "b-rec" : ""}" id="hC">${R.toCall ? (post || R.nR ? "Колл" : "Лимп") : "Чек"}<small>${R.toCall ? H.currentBet : ""}</small></button>
-      <button type="button" class="big ${(R.nR >= 1 || R.action === "allin" || (post && R.toCall)) ? "b-hot" : "b-raise"} ${["raise", "allin"].includes(R.action) ? "b-rec" : ""}" id="hR">${post ? (R.toCall ? "Рейз" : "Ставка") : R.nR >= 1 ? "Повысить" : "Рейз"}<small>${["raise", "allin"].includes(R.action) ? R.amount : ""}</small></button>
-    </div>
-    <div class="row"><button type="button" class="small" id="hU" ${undoStack.length ? "" : "disabled"}>Отменить</button></div>`;
-  $("hF").onclick = () => doAct(HERO, "fold");
-  $("hC").onclick = () => doAct(HERO, "call");
-  $("hR").onclick = () => openBet(HERO, ["raise", "allin"].includes(R.action) ? R.amount : null);
-  $("hU").onclick = undo;
-  $("hDet").onclick = openDetail;
-}
-
-// ---------- банки и выплаты (с побочными банками) ----------
-function buildPots() {
-  const contrib = [...Array(S.n).keys()].map(s => L.totalIn(H, s)), alive = L.active(H);
-  const levels = [...new Set(alive.map(s => contrib[s]).filter(x => x > 0))].sort((x, y) => x - y);
-  const pots = []; let prev = 0;
-  levels.forEach(lv => {
-    const amount = contrib.reduce((a, c) => a + Math.max(0, Math.min(c, lv) - Math.min(c, prev)), 0);
-    if (amount > 0) pots.push({ amount, elig: alive.filter(s => contrib[s] >= lv) });
-    prev = lv;
-  });
-  const extra = L.pot(H) - pots.reduce((a, p) => a + p.amount, 0);
-  if (pots.length && extra) pots[pots.length - 1].amount += extra;
-  return pots;
-}
-function payouts(winners) {
-  const pay = Array(S.n).fill(0);
-  buildPots().forEach(p => {
-    let w = winners.filter(s => p.elig.includes(s));
-    if (!w.length) w = [p.elig.find(s => s !== HERO) ?? p.elig[0]];
-    const share = Math.floor(p.amount / w.length);
-    w.forEach((s, k) => pay[s] += share + (k === 0 ? p.amount - share * w.length : 0));
-  });
-  return pay;
-}
-function setResult(res, winners) {
-  clearResult();
-  H.result = res; H.winners = winners; H.pay = payouts(winners);
-  H.delta = H.pay[HERO] - L.totalIn(H, HERO);
-  S.myStack += H.delta; save();
-}
-function clearResult() { if (H.result) { S.myStack -= H.delta || 0; H.result = null; H.delta = 0; H.pay = null; H.winners = null; save(); } }
-function chooseWinner(res, opps) {
-  sheet(`<h3>${res === "split" ? "С кем разделил банк?" : "Кто забрал банк?"}</h3><div class="list">${opps.map(s => `<button type="button" class="li" data-w="${s}" style="text-align:left"><span class="m">${L.posInfo(S.n, H.dealer, s).id}</span><span><b>${seatName(s)}</b></span><span class="m">→</span></button>`).join("")}</div>`);
-  document.querySelectorAll(".sheet [data-w]").forEach(b => b.onclick = () => { const w = +b.dataset.w; closeSheet(); setResult(res, res === "split" ? [HERO, w] : [w]); render(); });
-}
-
-function dockDone(d) {
-  const alive = L.active(H), P = L.pot(H);
-  const heroIn = !H.folded[HERO];
-  const opps = alive.filter(s => s !== HERO);
-  const invested = L.totalIn(H, HERO);
-  if (!H.result) {
-    if (alive.length === 1) setResult(alive[0] === HERO ? "win-pre" : "fold", [alive[0]]);
-    else if (!heroIn) H.autoFold = true;
-  }
-  const pots = buildPots();
-  let head;
-  if (alive.length === 1) head = alive[0] === HERO ? `Банк твой: +${P - invested}` : `Банк забрал ${seatName(alive[0])}`;
-  else head = heroIn ? `Вскрытие: ты против ${opps.map(seatName).join(", ")}` : "Ты сбросил";
-  const resTxt = H.result ? `Итог: <b style="color:${H.delta >= 0 ? "var(--raise)" : "var(--hot)"}">${H.delta >= 0 ? "+" : ""}${H.delta}</b> · ${byn(H.delta)} BYN${H.result === "split" ? " (делёж)" : ""}` : "";
-  const shown = Object.keys(H.show || {}).map(s => `${seatName(+s)}: ${H.show[s].map(cName2).join(" ")}`).join(" · ");
-  const needRes = heroIn && alive.length > 1 && !H.result;
-  const needWinner = !heroIn && alive.length > 1 && !H.result;
-  d.innerHTML = `
-    <div class="who"><span>${H.board.length ? "Раздача закрыта" : "Префлоп закрыт"} · банк ${P}${pots.length > 1 ? ` (${pots.length} банка)` : ""}</span><b>${head}</b></div>
-    ${needRes ? `<div class="row"><button type="button" class="big b-raise" id="dW">Выиграл<small>+${payouts([HERO])[HERO] - invested}</small></button><button type="button" class="big b-call" id="dP">Делёж</button><button type="button" class="big b-hot" id="dL">Проиграл<small>−${invested}</small></button></div>` : ""}
-    ${needWinner ? `<button type="button" class="small" id="dWho" style="flex:none">Кто забрал банк? (для стеков)</button>` : ""}
-    ${resTxt ? `<div class="note" style="font-size:14px;color:var(--ink)">${resTxt}${heroIn && alive.length > 1 ? ` · <button type="button" class="tag" id="dE">изменить</button>` : ""}</div>` : ""}
-    ${shown ? `<div class="note" style="font-size:13px;color:var(--muted)">Вскрытие: ${shown}</div>` : ""}
-    <div class="row"><button type="button" class="small" id="dS">Карты соперника</button><button type="button" class="small" id="dU" ${undoStack.length ? "" : "disabled"}>Отменить</button></div>
-    <button type="button" class="big b-call" id="dN" style="flex:none;height:56px">Следующая раздача →</button>`;
-  if ($("dW")) $("dW").onclick = () => { setResult("win", [HERO]); render(); };
-  if ($("dL")) $("dL").onclick = () => opps.length === 1 ? (setResult("lose", [opps[0]]), render()) : chooseWinner("lose", opps);
-  if ($("dP")) $("dP").onclick = () => opps.length === 1 ? (setResult("split", [HERO, opps[0]]), render()) : chooseWinner("split", opps);
-  if ($("dWho")) $("dWho").onclick = () => chooseWinner("fold", opps);
-  if ($("dE")) $("dE").onclick = () => { clearResult(); render(); };
-  $("dS").onclick = () => openShowdown();
-  $("dU").onclick = () => { clearResult(); H.show = {}; undo(); };
-  $("dN").onclick = () => {
-    if (!H.result) { if (!heroIn) { H.result = "fold"; H.delta = -invested; S.myStack -= invested; H.pay = null; } else { H.result = "unknown"; H.delta = 0; } }
-    commitHand(); nextHand();
-  };
-}
-const cName2 = c => (E.RANKS[E.cRank(c)] === "T" ? "10" : E.RANKS[E.cRank(c)]) + E.SUITS[E.cSuit(c)];
-function seatName(i) { const slot = occ()[i], nm = (S.slotNames || [])[slot]; return nm ? `${nm} (${L.posInfo(S.n, H.dealer, i).id})` : L.posInfo(S.n, H.dealer, i).id; }
-// полная запись раздачи и обновление стеков соперников
-function commitHand() {
-  const o = occ();
-  o.forEach((slot, i) => {
-    if (i === HERO) return;
-    const known = H.pay ? H.pay[i] : (H.folded[i] ? 0 : null);
-    if (known === null) return; // исход неизвестен — стек не трогаем
-    S.slotStacks[slot] = Math.max(0, H.start[i] - L.totalIn(H, i) + known);
-  });
+function renderChart() {
+  const order = positions(ST.n);
+  if (!order.includes(ST.pos)) ST.pos = order.includes("CO") ? "CO" : order[0];
+  const idx = order.indexOf(ST.pos);
+  const earlier = order.slice(0, idx);
+  const raisers = ST.pos === "SB" || ST.pos === "BB" ? earlier : earlier;
+  if (ST.sit !== "open" && !earlier.length) ST.sit = "open";
+  if (ST.sit === "raise" && !raisers.includes(ST.raiser)) ST.raiser = raisers[raisers.length - 1];
   save();
-  const rec = { v: 2, id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6), sid: S.sid, no: S.handNo, t: Date.now(),
-    n: S.n, sb: S.sb, bb: S.bb, profile: S.profile, dealer: H.dealer, hero: HERO,
-    seats: o.map((slot, i) => ({ slot, name: (S.slotNames || [])[slot] || "", pos: L.posInfo(S.n, H.dealer, i).id })),
-    start: H.start.slice(), cards: H.cards.slice(), suitsKnown: !!H.suitsKnown, cls: H.cards.length === 2 ? E.handClass(H.cards[0], H.cards[1]) : "—",
-    pos: L.posInfo(S.n, H.dealer, HERO).id, actions: H.actions.map(a => ({ seat: a.seat, type: a.type, to: a.to, check: !!a.check, street: a.street || 0 })),
-    folded: H.folded.slice(), dec: H.decisions.slice(), pot: L.pot(H), invested: L.totalIn(H, HERO), board: (H.board || []).slice(),
-    res: H.result, delta: H.delta || 0, winners: H.winners || null, show: H.show || {} };
-  HIST.unshift(rec); HIST = HIST.slice(0, 3000); store.set("pk2_hist", HIST);
+  seg($("nSeg"), [3, 4, 5, 6, 7, 8, 9, 10].map(n => [n, String(n)]), ST.n, v => { ST.n = v; renderChart(); });
+  $("nLab").textContent = ST.n >= 9 ? "полный стол" : ST.n >= 6 ? "средний стол" : "короткий стол";
+  const pr = $("posRow"); pr.innerHTML = "";
+  order.forEach(p => { const b = document.createElement("button"); b.type = "button"; b.className = "chip"; b.textContent = lbl(p); b.setAttribute("aria-pressed", String(p === ST.pos)); b.onclick = () => { buzz(); ST.pos = p; renderChart(); }; pr.appendChild(b); });
+  const nx = document.createElement("button"); nx.type = "button"; nx.className = "chip next"; nx.textContent = "След. раздача →";
+  nx.onclick = () => { buzz(); const i = order.indexOf(ST.pos); ST.pos = order[(i - 1 + order.length) % order.length]; ST.hand = null; renderChart(); const sel = pr.querySelector('[aria-pressed="true"]'); if (sel && sel.scrollIntoView) sel.scrollIntoView({ inline: "center", block: "nearest" }); };
+  pr.appendChild(nx);
+  $("posHint").textContent = posHintOf(ST.pos);
+  seg($("sitSeg"), [["open", "Все сбросили"], ["limp", "Был лимп", !earlier.length], ["raise", "Был рейз", !raisers.length]], ST.sit, v => { ST.sit = v; renderChart(); });
+  $("raiserBox").hidden = ST.sit !== "raise";
+  if (ST.sit === "raise") {
+    const rr = $("raiserRow"); rr.innerHTML = "";
+    raisers.forEach(p => { const b = document.createElement("button"); b.type = "button"; b.className = "chip"; b.textContent = lbl(p); b.setAttribute("aria-pressed", String(p === ST.raiser)); b.onclick = () => { buzz(); ST.raiser = p; renderChart(); }; rr.appendChild(b); });
+  }
+  const C = chart();
+  const g = $("grid");
+  if (!g.children.length) {
+    for (let i = 0; i < 13; i++) for (let j = 0; j < 13; j++) {
+      const a = E.RANK_ORDER[i], b2 = E.RANK_ORDER[j];
+      const h = i === j ? a + b2 : i < j ? a + b2 + "s" : b2 + a + "o";
+      const c = document.createElement("button"); c.type = "button"; c.className = "cell"; c.dataset.h = h;
+      c.textContent = h;
+      c.setAttribute("aria-label", h);
+      c.onclick = () => { buzz(); ST.hand = ST.hand === h ? null : h; renderChart(); };
+      g.appendChild(c);
+    }
+  }
+  let played = [];
+  [...g.children].forEach(c => {
+    const a = C.out[c.dataset.h];
+    c.className = "cell" + (a && a !== "fold" ? " " + a : "") + (c.dataset.h === ST.hand ? " sel" : "");
+    if (a && a !== "fold" && a !== "check") played.push(c.dataset.h);
+  });
+  const pct = pctOf(played);
+  $("mLab").textContent = pct.toFixed(0) + "%"; $("mBar").style.width = Math.min(100, pct) + "%";
+  $("legend").innerHTML = C.kind === "walk" ? "" : C.kind === "raise"
+    ? `<span><i style="background:var(--hot)"></i>3-бет</span><span><i style="background:var(--call)"></i>Колл</span><span><i style="background:var(--fold)"></i>Фолд</span>`
+    : C.kind === "limp" ? `<span><i style="background:var(--raise)"></i>Рейз</span><span><i style="background:var(--call)"></i>${ST.pos === "BB" ? "" : "Доплатить"}</span><span><i style="background:${ST.pos === "BB" ? "#3b4642" : "var(--fold)"}"></i>${ST.pos === "BB" ? "Чек" : "Фолд"}</span>`
+    : `<span><i style="background:var(--raise)"></i>Открыть рейзом</span><span><i style="background:var(--fold)"></i>Фолд</span>`;
+  renderVerdict(C, pct);
+}
+function renderVerdict(C, pct) {
+  const v = $("verdict");
+  const h = ST.hand;
+  const eqN = Math.min(9, ST.n - 1);
+  if (!h) {
+    v.className = "verdict idle";
+    v.innerHTML = `<div class="hand" style="font-size:22px;color:var(--muted)">?</div><div class="act">Нажми на свою руку в сетке</div><div class="why">${C.kind === "walk" ? C.head : `Место ${lbl(ST.pos)}: играется ${pct.toFixed(0)}% рук. ${C.head || ""}`}</div>`;
+    return;
+  }
+  const a = C.out[h];
+  const eq = DB.equity_vs_random[h][eqN - 1];
+  const place = `топ ${TOP[h].toFixed(0)}% рук`;
+  let act = ACT[a], why = "";
+  if (C.kind === "walk") { act = "Банк твой"; why = "До тебя все сбросили."; }
+  else if (C.kind === "open") {
+    if (a === "raise") { act = `Рейз до ${C.size}`; why = `${h} — ${place}. ${fromTxt(ST.pos).replace("с", "С")} при ${ST.n} игроках открываем ${pct.toFixed(0)}%.`; }
+    else why = `${h} — ${place}. ${fromTxt(ST.pos).replace("с", "С")} играем только лучшие ${pct.toFixed(0)}%.`;
+  } else if (C.kind === "limp") {
+    if (a === "raise") { act = `Рейз до ${(FR() ? 5 : 4) * ST.bb}+`; why = `Сильная рука против лимперов: забирай инициативу. +${ST.bb} за каждого лимпера.`; }
+    else if (a === "call") { act = `Доплатить ${ST.bb}`; why = `${h} хорошо играет в банке на многих: дёшево смотрим флоп ради сета, флеша, стрита.`; }
+    else if (a === "check") { act = "Чек"; why = "Ты на ББ: смотри флоп бесплатно."; }
+    else why = `${h} слишком слаба и для рейза, и чтобы доплачивать.`;
+  } else {
+    if (a === "tb") { act = "3-бет"; why = `${h} сильнее диапазона ${ofTxt(ST.raiser)}. Повышай ×${C.ip ? 3 : 4} от его ставки.`; }
+    else if (a === "call") why = `Против рейза ${fromTxt(ST.raiser)} (${C.early ? "ранняя позиция, сильный диапазон" : "поздняя позиция, широкий диапазон"}) — колл.`;
+    else why = `Рейз ${fromTxt(ST.raiser)}${C.early ? " из ранней позиции означает силу" : ""}: ${h} слабее его диапазона.`;
+  }
+  v.className = "verdict " + (C.kind === "walk" ? "raise" : a === "check" ? "call" : a);
+  v.innerHTML = `<div class="hand">${h.replace("T", "10")}</div><div class="act">${act}</div><div class="why">${why} Против ${eqN} случ. рук: ${eq}%.</div>`;
 }
 
-// ---------- ввод карт соперника (вскрытие) ----------
-function cardSheet(title, used, onDone) {
-  PK = { cards: [], rank: null };
+// ---------- выбор карт: вся колода, одно касание на карту ----------
+function pickCards({ title, slots, used, onDone }) {
+  let cur = slots.findIndex(c => c === null); if (cur < 0) cur = 0;
+  const vals = slots.slice();
   const draw = () => {
-    const sh = sheet(pickerHTML(title, 2, used));
-    bindPicker(sh, 2, c => { closeSheet(); onDone(c); }, draw);
+    const taken = new Set([...used, ...vals.filter((c, i) => c !== null && i !== cur)]);
+    $("layer").innerHTML = `<div class="scrim" id="scrim"></div><div class="sheet" role="dialog" aria-label="${title}"><div class="grab"></div>
+      <h3><span>${title}</span><button type="button" class="gear" id="pkClr">Очистить</button></h3>
+      <div class="slots">${vals.map((c, i) => `<button type="button" data-sl="${i}" style="padding:0">${cardHTML(c, i === cur ? "cur" : "")}</button>`).join("")}</div>
+      <div class="deck">${[0, 1, 2, 3].map(s => E.RANK_ORDER.split("").map(r => { const c = E.card(r, s), off = taken.has(c);
+        return `<button type="button" class="dk d${s} ${vals[cur] === c ? "on" : ""}" data-c="${c}" ${off ? "disabled" : ""}>${rk(r)}<small>${E.SUITS[s]}</small></button>`; }).join("")).join("")}</div>
+      <div class="row"><button type="button" class="btn go" id="pkOk">Готово</button></div></div>`;
+    $("scrim").onclick = finish;
+    $("pkOk").onclick = finish;
+    $("pkClr").onclick = () => { vals.fill(null); cur = 0; draw(); };
+    document.querySelectorAll("[data-sl]").forEach(b => b.onclick = () => { cur = +b.dataset.sl; draw(); });
+    document.querySelectorAll("[data-c]").forEach(b => b.onclick = () => {
+      buzz(); vals[cur] = +b.dataset.c;
+      const isBoard = title.startsWith("Доска");
+      if (isBoard && cur >= 2) return finish(); // флопа достаточно; тёрн и ривер — касанием по слоту
+      const next = vals.findIndex((c, i) => c === null && i > cur);
+      const any = vals.findIndex(c => c === null);
+      if (next >= 0) { cur = next; draw(); } else if (any >= 0 && !isBoard) { cur = any; draw(); } else finish();
+    });
   };
+  const finish = () => { $("layer").innerHTML = ""; onDone(vals); };
   draw();
 }
-function openShowdown() {
-  const cand = [...Array(S.n).keys()].filter(i => i !== HERO);
-  const alive = L.active(H);
-  const order = cand.sort((x, y) => (alive.includes(y) ? 1 : 0) - (alive.includes(x) ? 1 : 0));
-  sheet(`<h3>Чьи карты показали?</h3><div class="note">Сначала те, кто дошёл до флопа. Можно отметить и сбросившего, если он показал карты.</div>
-    <div class="list">${order.map(i => `<button type="button" class="li" data-i="${i}" style="text-align:left"><span class="m">${H.folded[i] ? "фолд" : "в игре"}</span><span><b>${seatName(i)}</b></span><span class="m">${H.show && H.show[i] ? H.show[i].map(cName2).join(" ") : "→"}</span></button>`).join("")}</div>`);
-  document.querySelectorAll(".sheet [data-i]").forEach(b => b.onclick = () => {
-    const i = +b.dataset.i;
-    const used = [...H.cards, ...(H.board || []), ...Object.entries(H.show || {}).filter(([k]) => +k !== i).flatMap(([, v]) => v)];
-    cardSheet(`Карты: ${seatName(i)}`, used, cards => { H.show = H.show || {}; H.show[i] = cards; render(); });
+
+// ---------- битва ----------
+const RANGES = {
+  rand: { l: "Любая рука", t: "любой руки", get: () => ALL_CLASSES },
+  early: { l: "Рейз с ранних мест (1–2)", t: "рейза с ранних мест", get: () => DB.rfi_by_behind["8"].hands },
+  co: { l: "Рейз перед дилером", t: "рейза с места перед дилером", get: () => DB.rfi_by_behind["3"].hands },
+  btn: { l: "Рейз с Д", t: "рейза с дилера", get: () => DB.rfi_by_behind["2"].hands },
+  limp: { l: "Лимпер", t: "лимпера", get: () => topRange(FR() ? 55 : 30) },
+  tb: { l: "3-бет", t: "3-бета", get: () => topRange(6) },
+  allin: { l: "Олл-ин", t: "олл-ина", get: () => topRange(4) },
+};
+function simulate(hero, pools, board, trials) {
+  const dead = new Set([...hero, ...board]);
+  const ps = pools.map(p => p.filter(c => !dead.has(c[0]) && !dead.has(c[1])));
+  if (ps.some(p => !p.length)) return null;
+  let w = 0, t = 0, l = 0, n = 0;
+  for (let k = 0; k < trials; k++) {
+    const used = new Set(dead), opp = []; let ok = true;
+    for (const p of ps) { let cb, g = 0; do { cb = p[(Math.random() * p.length) | 0]; } while ((used.has(cb[0]) || used.has(cb[1])) && ++g < 40); if (used.has(cb[0]) || used.has(cb[1])) { ok = false; break; } used.add(cb[0]); used.add(cb[1]); opp.push(cb); }
+    if (!ok) continue;
+    const full = board.slice(); while (full.length < 5) { const c = (Math.random() * 52) | 0; if (!used.has(c)) { used.add(c); full.push(c); } }
+    const me = E.evaluate([...hero, ...full]); let best = 0, tie = false, lose = false;
+    for (const o of opp) { const v = E.evaluate([...o, ...full]); if (v > me) { lose = true; break; } if (v === me) tie = true; }
+    if (lose) l++; else if (tie) t++; else w++; n++;
+  }
+  return { w: w / n, t: t / n, l: l / n };
+}
+const classOf = cs => E.handClass(cs[0], cs[1]);
+function matchName(a, b) {
+  const ra = [E.cRank(a[0]), E.cRank(a[1])].sort((x, y) => y - x), rb = [E.cRank(b[0]), E.cRank(b[1])].sort((x, y) => y - x);
+  const pa = ra[0] === ra[1], pb = rb[0] === rb[1];
+  if (pa && pb) return "Пара против пары: старшая пара — сильный фаворит.";
+  if (pa || pb) { const [p, o] = pa ? [ra, rb] : [rb, ra]; const over = o.filter(x => x > p[0]).length;
+    return over === 2 ? "Пара против двух старших карт — классическая «монетка»." : over === 1 ? "Пара против одной старшей карты: пара заметно впереди." : "Пара против двух младших карт: пара — большой фаворит."; }
+  if (ra.some(x => rb.includes(x))) return "Общая карта — доминирование: старший кикер забирает почти всё.";
+  if (ra[1] > rb[0] || rb[1] > ra[0]) return "Две старшие против двух младших: старшие впереди примерно 2 к 1.";
+  return "Карты переплетаются: решают масть и связность.";
+}
+function renderBattle() {
+  $("bMeCards").innerHTML = ST.bMe.map(c => cardHTML(c)).join("");
+  seg($("opMode"), [["hand", "Против руки"], ["range", "Против игрока"]], ST.opMode, v => { ST.opMode = v; renderBattle(); });
+  if (ST.opMode === "hand") { $("bOpWho").textContent = "Его рука"; $("bOpCards").innerHTML = ST.bOp.map(c => cardHTML(c)).join(""); }
+  else { $("bOpWho").textContent = "Он сделал"; $("bOpCards").innerHTML = `<span class="rangebtn">${RANGES[ST.opRange].l}<br><span class="note">≈${pctOf(RANGES[ST.opRange].get()).toFixed(0)}% рук</span></span>`; }
+  const pr = $("presets"); pr.innerHTML = "";
+  [["A♠K♦ — Q♣Q♥", ["As", "Kd"], ["Qc", "Qh"]], ["A♠K♦ — 7♣7♥", ["As", "Kd"], ["7c", "7h"]], ["A♠K♦ — A♣Q♥", ["As", "Kd"], ["Ac", "Qh"]], ["J♥T♥ — A♠K♦", ["Jh", "Th"], ["As", "Kd"]], ["K♠K♦ — A♣A♥", ["Ks", "Kd"], ["Ac", "Ah"]]].forEach(([l, a, b]) => {
+    const btn = document.createElement("button"); btn.type = "button"; btn.textContent = l;
+    const C = s => E.card(s[0], { s: 0, h: 1, d: 2, c: 3 }[s[1]]);
+    btn.onclick = () => { buzz(); ST.bMe = a.map(C); ST.bOp = b.map(C); ST.opMode = "hand"; renderBattle(); };
+    pr.appendChild(btn);
   });
+  save();
+  const box = $("bRes");
+  const me = ST.bMe, ready = me.every(c => c !== null) && (ST.opMode === "range" || ST.bOp.every(c => c !== null));
+  if (!ready) { box.innerHTML = `<div class="note">Нажми на слоты и выбери карты: одно касание на карту. Или возьми пример ниже.</div>`; return; }
+  box.innerHTML = `<div class="note spin">Считаю…</div>`;
+  setTimeout(() => {
+    const pool = ST.opMode === "hand" ? [ST.bOp] : RANGES[ST.opRange].get().flatMap(E.combosOf);
+    const r = simulate(me, [pool], [], ST.opMode === "hand" ? 25000 : 15000);
+    if (!r) { box.innerHTML = `<div class="note">Карты пересекаются — выбери другие.</div>`; return; }
+    const meP = r.w + r.t / 2, opP = r.l + r.t / 2;
+    const fav = meP >= 0.5;
+    box.innerHTML = `<div class="big-res"><b class="me">${(meP * 100).toFixed(0)}%</b><span class="note">${(r.t * 100).toFixed(1)}% ничья</span><b class="op">${(opP * 100).toFixed(0)}%</b></div>
+      <div class="split"><span style="width:${r.w * 100}%;background:var(--raise)"></span><span style="width:${r.t * 100}%;background:var(--dim)"></span><span style="width:${r.l * 100}%;background:var(--hot)"></span></div>
+      <div style="font:700 16px var(--body)">${fav ? (meP >= 0.65 ? "Ты явный фаворит" : "Ты немного впереди") : (meP <= 0.35 ? "Ты сильно позади" : "Ты немного позади")} · ${classOf(me)} против ${ST.opMode === "hand" ? classOf(ST.bOp) : RANGES[ST.opRange].t}</div>
+      <div class="note">${ST.opMode === "hand" ? matchName(me, ST.bOp) : "Его диапазон взят из чартов профиля «" + (FR() ? "дружеский" : "стандарт") + "»."} До ривера, все карты открыты.</div>
+      <div class="ln"><span>Шансы в деньгах</span><span>${meP >= 0.5 ? `${(meP / (1 - meP)).toFixed(1)} : 1 за тебя` : `1 : ${((1 - meP) / meP).toFixed(1)} против тебя`}</span></div>
+      <div class="ln"><span>Колл олл-ина окупается, если банк платит</span><span>от ${(1 / meP - 1).toFixed(1)} к 1</span></div>`;
+  }, 30);
 }
 
-// ---------- шторки ----------
-function closeSheet() { $("layer").innerHTML = ""; }
-function sheet(html) {
-  $("layer").innerHTML = `<div class="scrim" id="scrim"></div><div class="sheet" role="dialog"><div class="grab"></div>${html}</div>`;
-  $("scrim").onclick = closeSheet;
-  let y0 = null; const sh = $("layer").querySelector(".sheet");
-  sh.addEventListener("touchstart", e => { if (sh.scrollTop <= 0) y0 = e.touches[0].clientY; }, { passive: true });
-  sh.addEventListener("touchend", e => { if (y0 !== null && e.changedTouches[0].clientY - y0 > 90) closeSheet(); y0 = null; });
-  return sh;
+// ---------- флоп ----------
+function renderFlop() {
+  $("fHand").innerHTML = ST.fHand.map(c => cardHTML(c)).join("");
+  $("fBoard").innerHTML = ST.fBoard.map((c, i) => cardHTML(c, "mini" + (i > 2 ? " opt" : ""))).join("");
+  seg($("fOpp"), [1, 2, 3, 4, 5].map(n => [n, String(n)]), ST.fOpp, v => { ST.fOpp = v; renderFlop(); });
+  save();
+  const box = $("fRes");
+  const hand = ST.fHand, board = ST.fBoard.filter(c => c !== null);
+  if (hand.some(c => c === null) || board.length < 3) { box.innerHTML = `<div class="note">Нажми на карты сверху: сначала свои две, потом флоп. Тёрн и ривер — по желанию, они пересчитают ответ.</div>`; return; }
+  box.innerHTML = `<div class="note spin">Считаю…</div>`;
+  setTimeout(() => {
+    const desc = E.describeHand(hand, board), tex = E.boardTexture(board), outs = E.countOuts(hand, board), dr = E.drawInfo(hand, board);
+    const range = topRange(FR() ? 45 : 30).flatMap(E.combosOf);
+    const r = simulate(hand, Array(ST.fOpp).fill(range), board, ST.fOpp > 2 ? 4000 : 6000);
+    const e = r ? r.w + r.t / 2 : 0, n = ST.fOpp, street = board.length === 3 ? "флоп" : board.length === 4 ? "тёрн" : "ривер";
+    const left = 47 - (board.length - 3);
+    const outsPct = board.length === 3 ? 1 - (1 - outs / left) * (1 - outs / (left - 1)) : board.length === 4 ? outs / left : 0;
+    const thr = 1 / (n + 1) + 0.08 + 0.04 * (n - 1);
+    const strongDraw = (dr.fd || dr.oesd) && board.length < 5;
+    const frac = board.length === 5 ? 0.66 : tex.wet || n > 1 ? 0.75 : FR() ? 0.5 : 0.33;
+    let cls, ans, line;
+    if (e >= thr) { cls = "raise"; ans = `Ставь ${frac === 0.33 ? "⅓" : frac === 0.5 ? "½" : frac === 0.66 ? "⅔" : "¾"} банка`; line = `Ты впереди: ${(e * 100).toFixed(0)}% против ${n}. ${FR() ? "За вашим столом заплатят — бери деньги." : "Строй банк."}`; }
+    else if (strongDraw && n <= 2) { cls = "call"; ans = "Полублеф или колл"; line = `Сильное дро: ${outs} аутов, ${(outsPct * 100).toFixed(0)}% усилиться ${board.length === 3 ? "к риверу" : "на ривере"}.`; }
+    else if (e >= 1 / (n + 1)) { cls = "call"; ans = "Чек, вскрываться дёшево"; line = "Рука для вскрытия, но не для ставки: держи банк маленьким."; }
+    else { cls = "fold"; ans = "Чек, на ставку — фолд"; line = n > 1 && FR() ? "В банке на многих ставка соперника почти всегда означает силу." : "Без руки и без дро лучше не вкладываться."; }
+    // какую ставку можно платить: нужное эквити = f/(1+2f) → f = e/(1-2e)
+    const eqCall = Math.min(0.49, e + (strongDraw ? 0.05 : 0));
+    const f = eqCall / (1 - 2 * eqCall);
+    const payTxt = e >= 0.5 ? "любую ставку, и повышай" : f >= 1 ? "до размера банка" : f >= 0.66 ? "до ¾ банка" : f >= 0.45 ? "до ½ банка" : f >= 0.3 ? "до ⅓ банка" : "только совсем маленькую ставку";
+    box.innerHTML = `<div class="answer ${cls}">${ans}</div><div class="note" style="color:var(--ink)">${line}</div>
+      <div class="ln"><span>Твоя рука</span><span>${desc.text}${dr.fd ? " + флеш-дро" : ""}${dr.oesd ? " + стрит-дро" : dr.gut ? " + гатшот" : ""}</span></div>
+      <div class="ln"><span>Доска (${street})</span><span>${tex.text}</span></div>
+      <div class="ln"><span>Эквити против ${n} ${n === 1 ? "соперника" : "соперников"}</span><span>${(e * 100).toFixed(0)}%</span></div>
+      ${board.length < 5 ? `<div class="ln"><span>Ауты</span><span>${outs} · ${(outsPct * 100).toFixed(0)}% ${board.length === 3 ? "к риверу" : "на ривере"}</span></div>` : ""}
+      <div class="ln"><span>Если ставит соперник — плати</span><span>${payTxt}</span></div>
+      <div class="note">Соперники — те, кто заколлировал префлоп (≈${FR() ? 45 : 30}% рук). Ставки по улицам не нужны: это быстрая оценка.</div>`;
+  }, 30);
 }
 
-// набор суммы: быстрые суммы, фишки, цифры
-function amountPad({ title, initial, min, max, confirmLabel, onOk, quick }) {
-  let total = initial || 0, chips = { 50: 0, 20: 0, 10: 0, 5: 0, 1: 0 }, keys = false, typed = "";
-  const sh = sheet(`<h3>${title}</h3>
-    <div class="amount"><b id="aT"></b><span id="aS"></span></div>
-    <div class="quick" id="aQ"></div>
-    <div class="chipsrow" id="aC"></div>
-    <div class="keypad" id="aK" hidden></div>
-    <div class="err" id="aE"></div>
-    <div class="row"><button type="button" class="small" id="aClr">Сброс</button><button type="button" class="small" id="aKey">123</button><button type="button" class="big b-raise" id="aOk" style="flex:2;height:52px"></button></div>`);
-  const upd = () => {
-    $("aT").textContent = total;
-    $("aS").textContent = `${(total / S.bb).toFixed(1)} BB · ${byn(total)} BYN`;
-    const bad = total < min ? `Минимум ${min}` : total > max ? `Больше стека (${max})` : "";
-    $("aE").textContent = total ? bad : "";
-    $("aOk").disabled = !total || !!bad; $("aOk").style.opacity = $("aOk").disabled ? .4 : 1;
-    $("aOk").textContent = `${confirmLabel} ${total || ""}`;
-    $("aC").querySelectorAll(".chip").forEach(c => { const v = +c.dataset.v; c.querySelector("i").hidden = !chips[v]; c.querySelector("i").textContent = "×" + chips[v]; });
+// ---------- настройки ----------
+function openSettings() {
+  $("layer").innerHTML = `<div class="scrim" id="scrim"></div><div class="sheet"><div class="grab"></div><h3>Настройки</h3>
+    <div><div class="lab"><span>Блайнды, фишек</span></div><div class="row"><div class="stepper" style="flex:1"><button type="button" id="sb-">−</button><b id="sbV">${ST.sb}</b><button type="button" id="sb+">+</button></div><div class="stepper" style="flex:1"><button type="button" id="bb-">−</button><b id="bbV">${ST.bb}</b><button type="button" id="bb+">+</button></div></div></div>
+    <div><div class="lab"><span>Стол</span></div><div class="seg txt" id="prSeg"></div></div>
+    <div class="note" id="prNote"></div>
+    <button type="button" class="btn go" id="stOk">Готово</button></div>`;
+  const ref = () => {
+    $("sbV").textContent = ST.sb; $("bbV").textContent = ST.bb;
+    seg($("prSeg"), [["friendly", "Дружеский"], ["standard", "Стандарт"]], ST.prof, v => { ST.prof = v; ref(); });
+    $("prNote").textContent = FR() ? "Много лимпов, рейзы 10–15 коллируют почти все: крупнее рейзы, меньше блефа, слабые разномастные — в фолд." : "Аккуратные соперники: классические чарты, близкие к солверу.";
   };
-  const q = $("aQ");
-  (quick || []).forEach(v => { const b = document.createElement("button"); b.type = "button"; b.textContent = v.label ?? v; b.onclick = () => { total = v.value ?? v; chips = { 50: 0, 20: 0, 10: 0, 5: 0, 1: 0 }; typed = ""; buzz(); upd(); }; q.appendChild(b); });
-  const cr = $("aC");
-  [[1, "w"], [5, "r"], [10, "b"], [20, "g"], [50, "k"]].forEach(([v, c]) => {
-    const b = document.createElement("button"); b.type = "button"; b.className = "chip " + c; b.dataset.v = v;
-    b.innerHTML = `${v}<i hidden></i>`; b.setAttribute("aria-label", `Фишка ${v}`);
-    let t = null, long = false;
-    b.addEventListener("pointerdown", () => { long = false; t = setTimeout(() => { long = true; if (chips[v]) { chips[v]--; total -= v; buzz(); upd(); } }, 450); });
-    b.addEventListener("pointerup", () => clearTimeout(t)); b.addEventListener("pointerleave", () => clearTimeout(t));
-    b.onclick = () => { if (long) return; if (!Object.values(chips).some(Boolean)) total = 0; chips[v]++; total += v; typed = ""; buzz(); upd(); };
-    cr.appendChild(b);
-  });
-  const kp = $("aK");
-  ["1", "2", "3", "4", "5", "6", "7", "8", "9", "00", "0", "⌫"].forEach(k => { const b = document.createElement("button"); b.type = "button"; b.textContent = k;
-    b.onclick = () => { typed = k === "⌫" ? typed.slice(0, -1) : (typed + k).slice(0, 5); total = +typed || 0; chips = { 50: 0, 20: 0, 10: 0, 5: 0, 1: 0 }; upd(); }; kp.appendChild(b); });
-  $("aKey").onclick = () => { keys = !keys; kp.hidden = !keys; cr.hidden = keys; };
-  $("aClr").onclick = () => { total = 0; typed = ""; chips = { 50: 0, 20: 0, 10: 0, 5: 0, 1: 0 }; upd(); };
-  $("aOk").onclick = () => { if ($("aOk").disabled) return; closeSheet(); onOk(total); };
-  upd();
+  $("sb-").onclick = () => { ST.sb = Math.max(1, ST.sb - 1); ref(); }; $("sb+").onclick = () => { ST.sb++; ref(); };
+  $("bb-").onclick = () => { ST.bb = Math.max(ST.sb, ST.bb - 1); ref(); }; $("bb+").onclick = () => { ST.bb++; ref(); };
+  const close = () => { $("layer").innerHTML = ""; save(); renderAll(); };
+  $("scrim").onclick = close; $("stOk").onclick = close;
+  ref();
 }
-
-// привычные ставки игрока по истории: самая частая сумма его рейза на этой улице
-function habitOf(seat) {
-  const nm = S.slotNames[occ()[seat]]; if (!nm) return null;
-  const c = {};
-  HIST.forEach(h => { const i = h.seats.findIndex(s => s.name === nm); if (i < 0) return;
-    h.actions.filter(a => a.seat === i && a.type === "raise" && (a.street || 0) === H.street).forEach(a => { c[a.to] = (c[a.to] || 0) + 1; }); });
-  const best = Object.entries(c).sort((a, b) => b[1] - a[1])[0];
-  return best && best[1] >= 2 ? { name: nm, to: +best[0] } : null;
+function renderAll() {
+  ["gear1", "gear2", "gear3"].forEach(id => $(id).textContent = `${ST.sb}/${ST.bb} · ${FR() ? "дружеский" : "стандарт"}`);
+  if (ST.tab === "scChart") renderChart(); else if (ST.tab === "scBattle") renderBattle(); else if (ST.tab === "scFlop") renderFlop();
 }
-function openBet(seat, recAmt, viaAct) {
-  const p = L.posInfo(S.n, H.dealer, seat);
-  const max = L.stackLeft(H, seat), min = Math.min(Math.max(L.minRaiseTo(H), S.bb), max);
-  const isBet = H.street > 0 && H.currentBet === 0;
-  const learned = Object.entries(QUICK).sort((a, b) => b[1] - a[1]).map(x => +x[0]).filter(v => v >= min && v <= max).slice(0, 4).sort((a, b) => a - b);
-  const quick = [];
-  if (recAmt) quick.push({ label: `Совет ${recAmt}`, value: recAmt });
-  const hb = seat !== HERO ? habitOf(seat) : null;
-  if (hb && hb.to >= min && hb.to <= max) quick.push({ label: `Обычно ${hb.to}`, value: hb.to });
-  const lastR = [...H.actions].reverse().find(a => a.type === "raise" && (a.street || 0) === H.street);
-  const prevHand = HIST[0] && [...HIST[0].actions].find(a => a.type === "raise" && !a.street);
-  if (!lastR && prevHand && prevHand.to >= min && prevHand.to <= max && H.street === 0) quick.push({ label: `Как в прошлой ${prevHand.to}`, value: prevHand.to });
-  learned.filter(v => !quick.some(q => (q.value ?? q) === v)).forEach(v => quick.push(v));
-  const P = L.pot(H), r5 = x => Math.max(S.bb, Math.round(x / 5) * 5);
-  if (isBet) { [["⅓ банка", P / 3], ["½ банка", P / 2], ["¾ банка", P * 0.75], ["Банк", P]].forEach(([l, v]) => quick.push({ label: l, value: Math.min(max, r5(v)) })); }
-  else if (H.currentBet > S.bb) quick.push({ label: "×3", value: Math.min(max, r5(H.currentBet * 3)) });
-  quick.push({ label: "Олл-ин", value: max });
-  amountPad({ title: isBet ? `${seat === HERO ? "Твоя ставка" : "Ставка " + p.id}` : `${seat === HERO ? "Твой рейз" : "Рейз " + p.id} до…`, initial: recAmt || 0, min, max, confirmLabel: isBet ? "Ставка" : "Рейз до", quick,
-    onOk: v => viaAct ? actAt(seat, "raise", v) : doAct(seat, "raise", v) });
+function showTab(t) {
+  ST.tab = t; save();
+  document.querySelectorAll(".screen").forEach(s => s.hidden = s.id !== t);
+  document.querySelectorAll("[data-tab]").forEach(b => b.setAttribute("aria-selected", String(b.dataset.tab === t)));
+  renderAll();
 }
-
-function openStack(title, initial, isHero, seat) {
-  amountPad({ title, initial, min: 1, max: 99999, confirmLabel: "Сохранить",
-    quick: [{ label: "400", value: 400 }, { label: "500", value: 500 }, { label: "+400", value: initial + 400 }, { label: "+500", value: initial + 500 }],
-    onOk: v => { if (isHero) { S.myStack = v; } else { S.slotStacks[occ()[seat]] = v; } sync(); if (H.phase === "cards" && !H.actions.length) H.start[isHero ? HERO : seat] = v; save(); render(); } });
-}
-
-const knownNames = () => { const c = {}; HIST.forEach(h => h.seats.forEach(s => { if (s.name) c[s.name] = (c[s.name] || 0) + 1; })); S.slotNames.forEach(n => { if (n) c[n] = (c[n] || 0) + 1; }); return Object.keys(c).sort((a, b) => c[b] - c[a]); };
-const handFresh = () => !H.actions.length && !H.street;
-function restartIfFresh() { save(); if (handFresh()) { S.handNo--; startHand(); } else render(); }
-function rebuy(slot, amt) {
-  if (slot === S.heroSlot) { S.invested += amt; S.myStack += amt; }
-  else S.slotStacks[slot] = (S.slotStacks[slot] ?? S.buyin) + amt;
-  closeSheet(); buzz(); restartIfFresh();
-}
-function nameField(slot) {
-  return `<div class="field"><span>Имя игрока (для статистики)</span><div class="row"><input id="sNm" type="text" maxlength="16" autocomplete="off" value="${(S.slotNames[slot] || "").replace(/"/g, "&quot;")}" placeholder="например, Саша" style="flex:1;min-width:0;height:44px;border-radius:12px;border:1px solid var(--line);background:var(--bg);color:var(--ink);padding:0 12px;font:600 16px var(--body)"><button type="button" class="small" id="sNs" style="flex:none;padding:0 16px">Сохранить</button></div>${knownNames().length ? `<div class="quick">${knownNames().slice(0, 8).map(n => `<button type="button" data-nm="${n}">${n}</button>`).join("")}</div>` : ""}</div>`;
-}
-function bindName(slot) {
-  const setName = v => { S.slotNames.forEach((x, k) => { if (v && x === v && k !== slot) S.slotNames[k] = ""; }); S.slotNames[slot] = v.replace(/[<>"&]/g, "").trim(); save(); closeSheet(); render(); };
-  if ($("sNs")) $("sNs").onclick = () => setName($("sNm").value);
-  document.querySelectorAll(".sheet [data-nm]").forEach(b => b.onclick = () => setName(b.dataset.nm));
-}
-function openSeat(i) {
-  const p = L.posInfo(S.n, H.dealer, i), slot = occ()[i];
-  const reach = i !== HERO && !H.folded[i] && canReach(i);
-  const toCall = H.currentBet - H.bets[i], pre = H.street === 0;
-  const actRow = reach ? `<div class="field"><span>Что сделал${H.toAct !== i ? " (все до него — " + (defaultAct(H.toAct) === "call" ? "чек" : "фолд") + ")" : ""}</span>
-    <div class="row"><button type="button" class="big b-fold" id="aF">Фолд</button><button type="button" class="big b-call" id="aC">${toCall === 0 ? "Чек" : pre && H.currentBet === S.bb ? "Лимп" : "Колл"}<small>${toCall ? H.currentBet : ""}</small></button><button type="button" class="big b-raise" id="aR">${!pre && H.currentBet === 0 ? "Ставка" : "Рейз"}</button></div></div>` : "";
-  sheet(`<h3>${i === HERO ? "Ты" : seatName(i)}</h3>
-    ${actRow}
-    <div class="detail"><div class="ln"><span>Стек сейчас</span><span>${L.remaining(H, i)} · ${(L.remaining(H, i) / S.bb).toFixed(0)} BB</span></div></div>
-    <div class="row"><button type="button" class="small" id="sB1">Докупка +${S.buyin}</button><button type="button" class="small" id="sB2">+${S.buyin === 400 ? 500 : 400}</button><button type="button" class="small" id="sS">Стек…</button></div>
-    ${i === HERO ? "" : nameField(slot)}
-    <div class="row"><button type="button" class="small" id="sD" ${i === H.dealer ? "disabled" : ""}>Дилер здесь</button><button type="button" class="small" id="sH" ${i === HERO ? "disabled" : ""}>Я сижу здесь</button></div>
-    <div class="row">${i === HERO ? "" : `<button type="button" class="small" id="sO">Пропускает раздачи</button>`}<button type="button" class="small" id="sE">Вся рассадка</button></div>`);
-  if (reach) {
-    $("aF").onclick = () => { closeSheet(); actAt(i, "fold"); };
-    $("aC").onclick = () => { closeSheet(); actAt(i, "call"); };
-    $("aR").onclick = () => { closeSheet(); openBet(i, null, true); };
-  }
-  $("sB1").onclick = () => rebuy(slot, S.buyin);
-  $("sB2").onclick = () => rebuy(slot, S.buyin === 400 ? 500 : 400);
-  $("sD").onclick = () => { closeSheet(); S.dealerSlot = slot; save(); startHand(); };
-  $("sH").onclick = () => { closeSheet(); S.heroSlot = slot; S.sitOut[slot] = false; save(); startHand(); };
-  $("sE").onclick = openEdit;
-  if ($("sO")) $("sO").onclick = () => {
-    if (occ().length <= 3) { closeSheet(); return; }
-    S.sitOut[slot] = true; closeSheet();
-    if (handFresh()) { S.handNo--; save(); startHand(); } else { save(); render(); }
-  };
-  bindName(slot);
-  $("sS").onclick = () => openStack(i === HERO ? "Твой стек" : `Стек ${p.id}`, i === HERO ? S.myStack : (S.slotStacks[slot] ?? S.buyin), i === HERO, i);
-}
-function openAway(k) {
-  sheet(`<h3>${S.slotNames[k] || "Игрок"} · пропускает раздачи</h3>
-    <button type="button" class="big b-raise" id="wB" style="flex:none;height:56px">Вернулся в игру</button>
-    <div class="row"><button type="button" class="small" id="sB1">Докупка +${S.buyin}</button><button type="button" class="small" id="wX">Ушёл из-за стола</button></div>
-    ${nameField(k)}
-    <div class="note">Вернувшийся игрок попадёт в раздачу со следующей раздачи (или сразу, если раздача ещё не началась).</div>`);
-  $("wB").onclick = () => { S.sitOut[k] = false; closeSheet(); restartIfFresh(); };
-  $("wX").onclick = () => { if (seated().length <= 3) return; S.slots[k] = false; S.sitOut[k] = false; closeSheet(); restartIfFresh(); };
-  $("sB1").onclick = () => rebuy(k, S.buyin);
-  bindName(k);
-}
-
-function openDetail() {
-  if (H.rec && H.rec.post) return openDetailPost();
-  const R = H.rec, f = R.flop;
-  const pc = x => (x * 100).toFixed(x < 0.1 ? 1 : 0) + "%";
-  let flop = f.pair ? `<div class="ln"><span>Сет или лучше</span><span>${pc(f.setPlus)}</span></div>`
-    : `<div class="ln"><span>Пара или лучше (с твоей картой)</span><span>${pc(f.pairPlus)}</span></div><div class="ln"><span>Две пары из твоих карт</span><span>${pc(f.twoPair)}</span></div>`;
-  if (f.flushDraw) flop += `<div class="ln"><span>Флеш-дро / готовый флеш</span><span>${pc(f.flushDraw)} / ${pc(f.flush)}</span></div>`;
-  if (!f.pair && f.oesd + f.straight > 0.02) flop += `<div class="ln"><span>Стрит-дро / готовый стрит</span><span>${pc(f.oesd)} / ${pc(f.straight)}</span></div>`;
-  const opps = R.opps.length ? R.opps.map(o => `<div class="ln"><span>${o.pos} · ${o.kind}${o.kind === "блайнд" ? "" : " " + o.to}</span><span>≈ ${o.pct}% рук</span></div>`).join("") : `<div class="note">Перед тобой никто не вложил денег добровольно.</div>`;
-  const implied = R.toCall ? `<div class="ln"><span>Стек к коллу (скрытые шансы)</span><span>${((H.start[HERO] - H.bets[HERO]) / R.toCall).toFixed(0)}×</span></div>` : "";
-  sheet(`<h3>Аналитика до флопа</h3>
-    <div class="detail">
-      <div class="ln"><span>Банк</span><span>${R.pot} · ${(R.pot / S.bb).toFixed(1)} BB · ${byn(R.pot)} BYN</span></div>
-      <div class="ln"><span>Доплатить до колла</span><span>${R.toCall || "—"}</span></div>
-      <div class="ln"><span>Нужно эквити для колла</span><span>${R.toCall ? (R.need * 100).toFixed(0) + "%" : "—"}</span></div>
-      <div class="ln"><span>Эквити ${R.eq !== null ? "против диапазонов" : "против случайных рук"}</span><span>${R.eq !== null ? (R.eq * 100).toFixed(0) : (R.randomEq * 100).toFixed(0)}%</span></div>
-      <div class="ln"><span>SPR на флопе (после ${R.action === "raise" ? "рейза" : "колла"})</span><span>${R.action === "allin" ? "олл-ин" : R.spr.toFixed(1)}</span></div>
-      ${implied}
-      <div class="ln"><span>${R.cls}: место среди 169 рук</span><span>${R.place} · топ ${R.top.toFixed(0)}%</span></div>
-    </div>
-    <h3>Соперники в банке</h3><div class="detail">${opps}</div>
-    <h3>Чего ждать на флопе</h3><div class="detail">${flop}</div>
-    <div class="note">Диапазоны соперников — модель профиля «${S.profile === "friendly" ? "Дружеская игра" : "Стандарт"}». Эквити считается симуляцией 2 500–4 000 раздач.</div>`);
-}
-
-function openDetailPost() {
-  const R = H.rec, pc = x => (x * 100).toFixed(0) + "%";
-  const opps = R.opps.map(o => `<div class="ln"><span>${seatName(o.seat)} · ${o.kind}</span><span>≈ ${o.combos} комб. (было ${o.preCombos})</span></div>`).join("");
-  sheet(`<h3>Аналитика · ${STREET[H.street]}</h3>
-    <div class="hc board" style="justify-content:center">${H.board.map(cardHTML).join("")}</div>
-    <div class="detail">
-      <div class="ln"><span>Твоя рука</span><span>${R.desc.full}</span></div>
-      <div class="ln"><span>Доска</span><span>${R.tex.text}</span></div>
-      <div class="ln"><span>Банк</span><span>${R.pot} · ${(R.pot / S.bb).toFixed(1)} BB · ${byn(R.pot)} BYN</span></div>
-      <div class="ln"><span>Доплатить до колла</span><span>${R.toCall || "—"}</span></div>
-      <div class="ln"><span>Нужно эквити для колла</span><span>${R.toCall ? pc(R.need) : "—"}</span></div>
-      <div class="ln"><span>Эквити против диапазонов</span><span>${R.eq !== null ? pc(R.eq) : "—"}</span></div>
-      ${H.street < 3 ? `<div class="ln"><span>Ауты (улучшение до двух пар и выше)</span><span>${R.outs} · ${pc(R.outsPct)} ${H.street === 1 ? "к риверу" : "на ривере"}</span></div>` : ""}
-      <div class="ln"><span>SPR (стек к банку)</span><span>${R.spr.toFixed(1)}</span></div>
-    </div>
-    <h3>Диапазоны соперников</h3><div class="detail">${opps}</div>
-    <div class="note">Диапазон каждого соперника сужается по его действиям: ставка оставляет сильные руки и дро, колл — средние руки и дро, чек убирает самые сильные. Эквити — симуляция 2 000–3 000 раздач до ривера. Это упрощённая модель, не солвер: используй как ориентир.</div>`);
-}
-
-function openSession() {
-  const res = S.myStack - S.invested;
-  const sh = sheet(`<h3>Сессия</h3>
-    <div style="text-align:center"><div class="res ${res >= 0 ? "pos" : "neg"}">${res >= 0 ? "+" : ""}${byn(res)} BYN</div><div class="note">вложено ${S.invested} · стек ${S.myStack} фишек · ${S.handNo} раздач</div></div>
-    <button type="button" class="big b-raise" id="ssSum" style="flex:none;height:52px">Итог вечера</button>
-    <div class="row"><button type="button" class="small" id="ssB">Докупка +${S.buyin}</button><button type="button" class="small" id="ssM">Мой стек</button></div>
-    <div class="field"><span>Игроков за столом</span><div class="row"><b style="font:700 20px var(--mono);align-self:center;flex:1">${occ().length}</b><button type="button" class="small wide" id="ssSeat">Изменить рассадку</button></div></div>
-    <div class="field"><span>Блайнды, фишек</span><div class="row"><div class="stepper" style="flex:1"><button type="button" id="sb-">−</button><b id="sbV"></b><button type="button" id="sb+">+</button></div><div class="stepper" style="flex:1"><button type="button" id="bb-">−</button><b id="bbV"></b><button type="button" id="bb+">+</button></div></div></div>
-    <div class="field"><span>Бай-ин</span><div class="seg" id="ssBI"></div><div class="note" id="ssRate"></div></div>
-    <div class="field"><span>Профиль стола</span><div class="seg" id="ssP"></div></div>
-    <div class="row"><button type="button" class="small" id="ssNew">Новая сессия</button><button type="button" class="big b-raise" id="ssOk" style="height:48px">Готово</button></div>`);
-  const seg = (id, items, cur, fn) => { const el = $(id); el.innerHTML = ""; items.forEach(([v, l]) => { const b = document.createElement("button"); b.type = "button"; b.textContent = l; b.setAttribute("aria-pressed", String(v === cur)); b.onclick = () => { fn(v); refresh(); }; el.appendChild(b); }); };
-  const refresh = () => {
-    seg("ssBI", [[400, "400"], [500, "500"]], S.buyin, v => { S.buyin = v; S.buyinByn = v / 10; });
-    seg("ssP", [["friendly", "Дружеская игра"], ["standard", "Стандарт"]], S.profile, v => S.profile = v);
-    $("sbV").textContent = S.sb; $("bbV").textContent = S.bb;
-    $("ssRate").textContent = `${S.buyin} фишек = ${S.buyinByn} BYN · 1 фишка = ${byn(1)} BYN · ${Math.round(S.buyin / S.bb)} BB`;
-  };
-  $("ssSeat").onclick = openEdit;
-  $("ssSum").onclick = openSummary;
-  $("sb-").onclick = () => { S.sb = Math.max(1, S.sb - 1); refresh(); }; $("sb+").onclick = () => { S.sb++; refresh(); };
-  $("bb-").onclick = () => { S.bb = Math.max(S.sb, S.bb - 1); refresh(); }; $("bb+").onclick = () => { S.bb++; refresh(); };
-  $("ssB").onclick = () => { S.invested += S.buyin; S.myStack += S.buyin; sync(); if (H && H.phase === "cards" && !H.actions.length) H.start[HERO] = S.myStack; save(); closeSheet(); render(); openSession(); };
-  $("ssM").onclick = () => openStack("Твой стек", S.myStack, true);
-  $("ssNew").onclick = () => { S = Object.assign({}, DEF, { sb: S.sb, bb: S.bb, buyin: S.buyin, buyinByn: S.buyinByn, profile: S.profile, slots: S.slots, heroSlot: S.heroSlot, dealerSlot: S.dealerSlot, slotNames: S.slotNames, sid: newSid(), sessionStart: Date.now() }); S.invested = S.buyin; S.myStack = S.buyin; S.slotStacks = Array(10).fill(null); S.sitOut = Array(10).fill(false); save(); closeSheet(); startHand(); };
-  $("ssOk").onclick = () => { save(); closeSheet(); if (!H || H.phase === "cards" && !H.actions.length) { S.handNo--; startHand(); } else render(); };
-  refresh();
-}
-
-// ---------- отчёты ----------
-let REP = { tab: "session", scope: "session" };
-const norm = a => a === "allin" ? "raise" : a === "check" ? "call" : a;
-const RESW = { "split": "делёж", "win": "выиграл", "win-pre": "забрал префлоп", "lose": "проиграл", "fold": "сбросил", "unknown": "без итога" };
-const sgn = x => (x > 0 ? "+" : "") + x;
-const money = x => `<span style="color:${x > 0 ? "var(--raise)" : x < 0 ? "var(--hot)" : "var(--muted)"}">${sgn(x)}</span>`;
-function eqCache(h) {
-  // эквити героя префлоп против показанных карт соперников (только тех, кто не сбросил)
-  if (h._eq !== undefined) return h._eq;
-  const opp = Object.entries(h.show || {}).filter(([s]) => !h.folded[+s]).map(([, c]) => c);
-  if (!opp.length || h.cards.length !== 2 || h.res === "fold") return (h._eq = null);
-  // точные руки соперников: диапазон из одной комбинации
-  const used = new Set(h.cards); let total = 0, n = 0;
-  for (let t = 0; t < 3000; t++) {
-    const deck = []; const block = new Set([...h.cards, ...opp.flat()]);
-    for (let c = 0; c < 52; c++) if (!block.has(c)) deck.push(c);
-    for (let i = 0; i < 5; i++) { const j = i + ((Math.random() * (deck.length - i)) | 0); [deck[i], deck[j]] = [deck[j], deck[i]]; }
-    const board = deck.slice(0, 5), me = E.evaluate([...h.cards, ...board]);
-    let best = true, ties = 1;
-    for (const o of opp) { const v = E.evaluate([...o, ...board]); if (v > me) { best = false; break; } if (v === me) ties++; }
-    if (best) total += 1 / ties; n++;
-  }
-  return (h._eq = total / n);
-}
-function stackChart(hs) {
-  const pts = [0]; hs.slice().reverse().forEach(h => pts.push(pts[pts.length - 1] + h.delta));
-  if (pts.length < 2) return `<div class="note">График появится после первых раздач.</div>`;
-  const W = 340, Hh = 120, mn = Math.min(0, ...pts), mx = Math.max(0, ...pts), rg = mx - mn || 1;
-  const X = i => 8 + i / (pts.length - 1) * (W - 16), Y = v => 8 + (mx - v) / rg * (Hh - 16);
-  const last = pts[pts.length - 1];
-  return `<svg viewBox="0 0 ${W} ${Hh}" style="width:100%;height:auto" role="img" aria-label="Изменение стека по раздачам">
-    <line x1="8" x2="${W - 8}" y1="${Y(0)}" y2="${Y(0)}" stroke="#26302c" stroke-dasharray="3 4"/>
-    <polyline fill="none" stroke="${last >= 0 ? "#38d47c" : "#ff5f63"}" stroke-width="2.5" stroke-linejoin="round" points="${pts.map((v, i) => X(i) + "," + Y(v)).join(" ")}"/>
-    <circle cx="${X(pts.length - 1)}" cy="${Y(last)}" r="4" fill="${last >= 0 ? "#38d47c" : "#ff5f63"}"/>
-    <text x="${W - 8}" y="${Math.max(14, Y(last) - 8)}" text-anchor="end" fill="#eef3f0" font-size="12" font-family="JetBrains Mono, monospace">${sgn(last)}</text>
-    <text x="8" y="${Hh - 2}" fill="#8d9a94" font-size="10" font-family="JetBrains Mono, monospace">раздача 1</text>
-    <text x="${W - 8}" y="${Hh - 2}" text-anchor="end" fill="#8d9a94" font-size="10" font-family="JetBrains Mono, monospace">${pts.length - 1}</text></svg>`;
-}
-function groupTable(rows, head) {
-  if (!rows.length) return `<div class="note">Пока нет данных.</div>`;
-  return `<div class="list">${rows.map(r => `<div class="li"><span><b>${r.k}</b></span><span class="m">${r.sub}</span><span style="font:700 14px var(--mono)">${money(r.v)}</span></div>`).join("")}</div>`;
-}
-function openReport() {
-  const all = HIST;
-  const hs = REP.scope === "session" ? all.filter(h => h.sid === S.sid) : all;
-  const tabs = [["session", "Сессия"], ["pos", "Позиции"], ["hands", "Руки"], ["advice", "Совет"], ["luck", "Вскрытия"], ["players", "Игроки"], ["list", "Раздачи"]];
-  let body = "";
-  const n = hs.length, sum = hs.reduce((a, h) => a + h.delta, 0);
-  if (REP.tab === "session") {
-    const vp = hs.filter(h => h.dec.some(x => !x.street && ["call", "raise", "allin"].includes(x.me))).length;
-    const pf = hs.filter(h => h.dec.some(x => !x.street && ["raise", "allin"].includes(x.me))).length;
-    const best = hs.reduce((a, h) => !a || h.delta > a.delta ? h : a, null), worst = hs.reduce((a, h) => !a || h.delta < a.delta ? h : a, null);
-    const sessRes = REP.scope === "session" ? S.myStack - S.invested : sum;
-    body = `<div style="text-align:center"><div class="res ${sessRes >= 0 ? "pos" : "neg"}">${sessRes >= 0 ? "+" : ""}${byn(sessRes)} BYN</div><div class="note">${REP.scope === "session" ? `стек ${S.myStack} · вложено ${S.invested}` : "все сессии, сумма итогов раздач"}</div></div>
-      ${stackChart(hs)}
-      <div class="kpis"><div class="kpi"><span>Раздач</span><b>${n}</b></div><div class="kpi"><span>VPIP</span><b>${n ? Math.round(vp / n * 100) : 0}%</b></div><div class="kpi"><span>PFR</span><b>${n ? Math.round(pf / n * 100) : 0}%</b></div></div>
-      <div class="detail">
-        ${best && best.delta > 0 ? `<div class="ln"><span>Лучшая раздача</span><span>${best.cls} · ${best.pos} · ${money(best.delta)}</span></div>` : ""}
-        ${worst && worst.delta < 0 ? `<div class="ln"><span>Худшая раздача</span><span>${worst.cls} · ${worst.pos} · ${money(worst.delta)}</span></div>` : ""}
-        <div class="ln"><span>Сумма по раздачам, фишек</span><span>${money(sum)}</span></div>
-        <div class="ln"><span>Раздач без итога</span><span>${hs.filter(h => h.res === "unknown").length}</span></div>
-      </div>
-      <button type="button" class="small" id="rSum" style="flex:none">Итог вечера одной карточкой</button>
-      <div class="note">VPIP — доля раздач, где ты добровольно вложил фишки. PFR — где повышал префлоп. Для живой игры норма около 20–25% и 15–20%.</div>`;
-  } else if (REP.tab === "pos") {
-    const g = {}; hs.forEach(h => { (g[h.pos] = g[h.pos] || { v: 0, c: 0, p: 0 }); g[h.pos].v += h.delta; g[h.pos].c++; if (h.dec.some(x => !x.street && ["call", "raise", "allin"].includes(x.me))) g[h.pos].p++; });
-    const order = ["UTG", "UTG+1", "UTG+2", "MP", "LJ", "HJ", "CO", "BTN", "SB", "BB"];
-    body = groupTable(order.filter(p => g[p]).map(p => ({ k: p, sub: `${g[p].c} раздач · играл ${Math.round(g[p].p / g[p].c * 100)}%`, v: g[p].v })))
-      + `<div class="note">SB и BB почти всегда в минусе: там ты обязан ставить блайнд. Задача — терять на них меньше.</div>`;
-  } else if (REP.tab === "hands") {
-    const g = {}; hs.filter(h => h.res !== "fold" || h.delta !== 0).forEach(h => { (g[h.cls] = g[h.cls] || { v: 0, c: 0 }); g[h.cls].v += h.delta; g[h.cls].c++; });
-    const rows = Object.entries(g).map(([k, x]) => ({ k, sub: `${x.c} раз`, v: x.v })).sort((a, b) => b.v - a.v);
-    body = `<h3 style="font-size:15px">Приносят больше всего</h3>${groupTable(rows.filter(r => r.v > 0).slice(0, 6))}<h3 style="font-size:15px">Теряют больше всего</h3>${groupTable(rows.filter(r => r.v < 0).reverse().slice(0, 6))}`;
-  } else if (REP.tab === "advice") {
-    const withDec = hs.filter(h => h.dec.length);
-    const fol = withDec.filter(h => h.dec.every(x => norm(x.rec) === norm(x.me))), dev = withDec.filter(h => h.dec.some(x => norm(x.rec) !== norm(x.me)));
-    const s = a => a.reduce((x, h) => x + h.delta, 0);
-    const kinds = {}; dev.forEach(h => h.dec.filter(x => norm(x.rec) !== norm(x.me)).forEach(x => { const k = `совет «${VERB[x.rec]}», ты «${VERB[x.me]}»`; (kinds[k] = kinds[k] || { v: 0, c: 0 }); kinds[k].v += h.delta; kinds[k].c++; }));
-    body = `<div class="kpis"><div class="kpi"><span>По совету</span><b>${fol.length}</b></div><div class="kpi"><span>Итог</span><b>${money(s(fol))}</b></div><div class="kpi"><span>В среднем</span><b>${fol.length ? money(Math.round(s(fol) / fol.length)) : "—"}</b></div></div>
-      <div class="kpis"><div class="kpi"><span>Против совета</span><b>${dev.length}</b></div><div class="kpi"><span>Итог</span><b>${money(s(dev))}</b></div><div class="kpi"><span>В среднем</span><b>${dev.length ? money(Math.round(s(dev) / dev.length)) : "—"}</b></div></div>
-      <h3 style="font-size:15px">Где ты отклоняешься</h3>${groupTable(Object.entries(kinds).map(([k, x]) => ({ k, sub: `${x.c} раз`, v: x.v })).sort((a, b) => a.v - b.v))}
-      <div class="note">На дистанции меньше 200 раздач результат сильно зависит от везения. Смотри, какие отклонения повторяются, а не только на сумму.</div>`;
-  } else if (REP.tab === "luck") {
-    const sd = hs.filter(h => eqCache(h) !== null && (h.res === "win" || h.res === "lose"));
-    const exp = sd.reduce((a, h) => a + eqCache(h), 0), won = sd.filter(h => h.res === "win").length;
-    body = sd.length ? `<div class="kpis"><div class="kpi"><span>Вскрытий</span><b>${sd.length}</b></div><div class="kpi"><span>Выиграл</span><b>${won}</b></div><div class="kpi"><span>Ожидалось</span><b>${exp.toFixed(1)}</b></div></div>
-      <div class="note" style="font-size:14px;color:var(--ink)">${won >= exp ? `Тебе везёт: выиграл на ${(won - exp).toFixed(1)} вскрытия больше, чем ожидалось по картам.` : `Тебе не везёт: выиграл на ${(exp - won).toFixed(1)} вскрытия меньше, чем ожидалось по картам. Решения тут ни при чём.`}</div>
-      <div class="list">${sd.map(h => `<div class="li"><span class="m">#${h.no}</span><span><b>${h.cards.map(cName2).join(" ")}</b> против ${Object.entries(h.show).filter(([s]) => !h.folded[+s]).map(([s, c]) => c.map(cName2).join(" ")).join(", ")} · эквити ${(eqCache(h) * 100).toFixed(0)}%</span><span style="font:700 13px var(--mono)">${money(h.delta)}</span></div>`).join("")}</div>
-      <div class="note">Эквити посчитано префлоп: какой была твоя доля банка до раздачи общих карт.</div>`
-      : `<div class="note">Здесь появятся раздачи, где соперники показали карты. В конце раздачи нажми «Вскрытие» и введи их карты.</div>`;
-  } else if (REP.tab === "players") {
-    const P = {};
-    hs.forEach(h => {
-      const raisesBefore = idx => h.actions.slice(0, idx).filter(a => a.type === "raise").length;
-      h.seats.forEach((s, i) => {
-        if (i === h.hero || !s.name) return;
-        const p = (P[s.name] = P[s.name] || { hands: 0, vpip: 0, pfr: 0, limp: 0, shows: [] });
-        p.hands++;
-        const acts = h.actions.map((a, k) => ({ a, k })).filter(x => x.a.seat === i);
-        if (acts.some(x => x.a.type === "raise" || (x.a.type === "call" && !x.a.check))) p.vpip++;
-        if (acts.some(x => x.a.type === "raise")) p.pfr++;
-        if (acts.some(x => x.a.type === "call" && !x.a.check && raisesBefore(x.k) === 0)) p.limp++;
-        if (h.show && h.show[i]) { const r = acts.find(x => x.a.type === "raise"); p.shows.push(`${E.handClass(...h.show[i])}${r ? ` (рейз ${r.a.to})` : ""}`); }
-      });
-    });
-    const rows = Object.entries(P).sort((a, b) => b[1].hands - a[1].hands);
-    const pc = (a, b) => b ? Math.round(a / b * 100) + "%" : "—";
-    const style = p => p.hands < 15 ? "мало данных" : p.vpip / p.hands > 0.45 ? (p.pfr / p.hands > 0.15 ? "лузово-агрессивный" : "лузово-пассивный") : (p.pfr / p.hands > 0.12 ? "тайтово-агрессивный" : "тайтово-пассивный");
-    body = rows.length ? `<div class="list">${rows.map(([nm, p]) => `<div class="li" style="grid-template-columns:1fr auto"><span><b>${nm}</b> · ${style(p)}<br><span class="m">${p.hands} раздач · VPIP ${pc(p.vpip, p.hands)} · PFR ${pc(p.pfr, p.hands)} · лимп ${pc(p.limp, p.hands)}</span>${p.shows.length ? `<br><span class="m">показывал: ${p.shows.slice(-6).join(", ")}</span>` : ""}</span><span></span></div>`).join("")}</div>`
-      : `<div class="note">Дай игрокам имена: нажми на игрока за столом и впиши имя. Статистика по ним начнёт копиться с первой раздачи.</div>`;
-  } else {
-    body = hs.length ? `<div class="list">${hs.slice(0, 150).map((h, k) => {
-      const off = h.dec.filter(y => norm(y.rec) !== norm(y.me));
-      return `<button type="button" class="li" data-h="${h.id}" style="text-align:left"><span class="m">#${h.no}</span><span><b>${h.cls}</b> · ${h.pos} · ${RESW[h.res] || ""}${Object.keys(h.show || {}).length ? " · вскрытие" : ""}${off.length ? ` · <span style="color:var(--gold)">против совета</span>` : ""}</span><span style="font:700 13px var(--mono)">${money(h.delta)}</span></button>`; }).join("")}</div>`
-      : `<div class="note">Раздачи появятся после первой сыгранной.</div>`;
-  }
-  sheet(`<h3>Отчёт</h3>
-    <div class="seg" id="rS"><button type="button" data-sc="session" aria-pressed="${REP.scope === "session"}">Эта сессия</button><button type="button" data-sc="all" aria-pressed="${REP.scope === "all"}">Все сессии</button></div>
-    <div class="seg" id="rT">${tabs.map(([v, l]) => `<button type="button" data-tb="${v}" aria-pressed="${REP.tab === v}" style="flex:1 0 22%;font-size:13px">${l}</button>`).join("")}</div>
-    ${body}
-    <button type="button" class="small" id="rX" style="flex:none">Отправить данные для разбора с Claude</button><div class="note" id="rXn"></div>`);
-  document.querySelectorAll(".sheet [data-sc]").forEach(b => b.onclick = () => { REP.scope = b.dataset.sc; openReport(); });
-  document.querySelectorAll(".sheet [data-tb]").forEach(b => b.onclick = () => { REP.tab = b.dataset.tb; openReport(); });
-  document.querySelectorAll(".sheet [data-h]").forEach(b => b.onclick = () => openHand(b.dataset.h));
-  if ($("rSum")) $("rSum").onclick = openSummary;
-  $("rX").onclick = async () => {
-    const data = JSON.stringify({ exported: new Date().toISOString(), session: { sb: S.sb, bb: S.bb, buyin: S.buyin, buyinByn: S.buyinByn, invested: S.invested, myStack: S.myStack, profile: S.profile }, hands: hs.map(({ _eq, ...h }) => ({ ...h, cards: h.cards.map(cName2), board: (h.board || []).map(cName2), show: Object.fromEntries(Object.entries(h.show || {}).map(([k, v]) => [k, v.map(cName2)])) })) });
-    const fallback = () => { $("rXn").innerHTML = `Скопируй вручную:<textarea style="width:100%;height:120px;background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:8px;font:11px var(--mono)" readonly>${data.replace(/</g, "&lt;")}</textarea>`; const ta = $("rXn").querySelector("textarea"); ta.focus(); ta.select(); };
-    const name = `poker_${new Date().toISOString().slice(0, 10)}.json`;
-    // на iPhone: системное меню «Поделиться» — Почта, Telegram, Заметки, Файлы
-    try {
-      if (navigator.share) {
-        const file = typeof File !== "undefined" ? new File([data], name, { type: "application/json" }) : null;
-        if (file && navigator.canShare && navigator.canShare({ files: [file] })) await navigator.share({ files: [file], title: "Покер: раздачи" });
-        else await navigator.share({ title: "Покер: раздачи", text: data });
-        $("rXn").textContent = `Отправлено: ${hs.length} раздач.`; return;
-      }
-    } catch (e) { if (e && e.name === "AbortError") return; }
-    try { navigator.clipboard.writeText(data).then(() => { $("rXn").textContent = `Скопировано: ${hs.length} раздач. Вставь в чат с Claude.`; }, fallback); } catch (e) { fallback(); }
-  };
-}
-// ---------- итог вечера ----------
-function openSummary() {
-  const hs = HIST.filter(h => h.sid === S.sid);
-  const res = S.myStack - S.invested;
-  const mins = Math.max(1, Math.round((Date.now() - (S.sessionStart || Date.now())) / 60000));
-  const dur = mins >= 60 ? `${Math.floor(mins / 60)} ч ${mins % 60} мин` : `${mins} мин`;
-  const best = hs.reduce((a, h) => !a || h.delta > a.delta ? h : a, null), worst = hs.reduce((a, h) => !a || h.delta < a.delta ? h : a, null);
-  const kinds = {};
-  hs.forEach(h => h.dec.filter(x => norm(x.rec) !== norm(x.me)).forEach(x => {
-    const k = `${STREET[x.street || 0]}: совет «${VERB[x.rec]}», ты «${VERB[x.me]}»`;
-    (kinds[k] = kinds[k] || { v: 0, c: 0, ex: [] }); kinds[k].v += h.delta; kinds[k].c++; if (kinds[k].ex.length < 3) kinds[k].ex.push(h.cls);
-  }));
-  const dev = Object.entries(kinds).sort((a, b) => a[1].v - b[1].v).slice(0, 3);
-  const decs = hs.flatMap(h => h.dec), fol = decs.filter(x => norm(x.rec) === norm(x.me)).length;
-  const vp = hs.filter(h => h.dec.some(x => !x.street && ["call", "raise", "allin"].includes(x.me))).length;
-  const line = h => h ? `<b>${h.cls}</b> · ${h.pos}${h.board && h.board.length ? " · " + h.board.map(cName2).join(" ") : ""} · ${money(h.delta)}` : "—";
-  const txt = [`Итог вечера: ${res >= 0 ? "+" : ""}${byn(res)} BYN (${res >= 0 ? "+" : ""}${res} фишек)`, `${hs.length} раздач за ${dur}, играл ${hs.length ? Math.round(vp / hs.length * 100) : 0}% рук, по совету ${decs.length ? Math.round(fol / decs.length * 100) : 0}% решений`,
-    best ? `Лучшая: ${best.cls} ${best.pos} ${sgn(best.delta)}` : "", worst ? `Худшая: ${worst.cls} ${worst.pos} ${sgn(worst.delta)}` : "",
-    ...dev.map(([k, x]) => `${k} — ${x.c} раз, ${sgn(x.v)} фишек`)].filter(Boolean).join("\n");
-  sheet(`<h3>Итог вечера</h3>
-    <div style="text-align:center"><div class="res ${res >= 0 ? "pos" : "neg"}">${res >= 0 ? "+" : ""}${byn(res)} BYN</div><div class="note">${res >= 0 ? "+" : ""}${res} фишек · ${hs.length} раздач · ${dur}</div></div>
-    ${stackChart(hs)}
-    <div class="kpis"><div class="kpi"><span>Играл рук</span><b>${hs.length ? Math.round(vp / hs.length * 100) : 0}%</b></div><div class="kpi"><span>По совету</span><b>${decs.length ? Math.round(fol / decs.length * 100) : 0}%</b></div><div class="kpi"><span>Докупки</span><b>${Math.round((S.invested - S.buyin) / S.buyin)}</b></div></div>
-    <div class="detail"><div class="ln"><span>Лучшая раздача</span><span>${line(best && best.delta > 0 ? best : null)}</span></div><div class="ln"><span>Худшая раздача</span><span>${line(worst && worst.delta < 0 ? worst : null)}</span></div></div>
-    <h3 style="font-size:15px">Главные отклонения от совета</h3>
-    ${dev.length ? `<div class="list">${dev.map(([k, x], n) => `<div class="li"><span class="m">${n + 1}</span><span>${k}<br><span class="m">${x.c} раз · ${x.ex.join(", ")}</span></span><span style="font:700 13px var(--mono)">${money(x.v)}</span></div>`).join("")}</div>` : `<div class="note">Ты играл строго по совету.</div>`}
-    <div class="row"><button type="button" class="small" id="smC">Скопировать итог</button><button type="button" class="small" id="smR">Полный отчёт</button></div><div class="note" id="smN"></div>`);
-  $("smR").onclick = () => { REP.tab = "session"; REP.scope = "session"; openReport(); };
-  $("smC").onclick = () => { try { navigator.clipboard.writeText(txt).then(() => $("smN").textContent = "Скопировано.", () => $("smN").textContent = txt); } catch (e) { $("smN").textContent = txt; } };
-}
-// карточка раздачи: детали, правка итога, карты соперников задним числом
-function openHand(id) {
-  const h = HIST.find(x => x.id === id); if (!h) return;
-  const nm = i => h.seats[i].name ? `${h.seats[i].name} (${h.seats[i].pos})` : h.seats[i].pos;
-  let raises = 0;
-  let st = -1;
-  const acts = h.actions.map(a => { const s = a.street || 0; let pre = ""; if (s !== st) { st = s; raises = 0; pre = `<br><b>${STREET[s]}:</b> `; }
-    const w = a.type === "fold" ? "фолд" : a.type === "raise" ? (s ? (++raises === 1 ? "ставка " : "рейз до ") : (++raises === 1 ? "рейз " : raises === 2 ? "3-бет " : "4-бет ")) + a.to : a.check ? "чек" : (raises || s ? "колл " : "лимп ") + a.to;
-    return pre + `${a.seat === h.hero ? "<b>ты</b>" : nm(a.seat)}: ${w}`; }).join(" · ").replace(/^<br>/, "");
-  const decs = h.dec.map(x => `${STREET[x.street || 0]}: совет ${VERB[x.rec]}${["raise", "allin"].includes(x.rec) ? " " + x.amt : ""} → ты ${VERB[x.me]}`).join("; ");
-  sheet(`<h3>Раздача #${h.no} · ${h.pos}</h3>
-    <div class="hc" style="justify-content:center">${h.cards.map(cardHTML).join("")}</div>
-    ${h.board && h.board.length ? `<div class="hc board" style="justify-content:center">${h.board.map(cardHTML).join("")}</div>` : ""}
-    <div class="detail">
-      <div class="ln"><span>Стол</span><span>${h.n} игр. · ${h.sb}/${h.bb}</span></div>
-      <div class="ln"><span>Итог</span><span>${RESW[h.res] || ""} · ${money(h.delta)} · ${byn(h.delta)} BYN</span></div>
-      <div class="ln"><span>Решения</span><span>${decs || "—"}</span></div>
-    </div>
-    <div class="note" style="font-size:13px;color:var(--muted)">${acts || "Без действий"}</div>
-    <div class="detail">${Object.entries(h.show || {}).map(([s, c]) => `<div class="ln"><span>${nm(+s)}</span><span>${c.map(cName2).join(" ")}</span></div>`).join("")}</div>
-    <div class="row"><button type="button" class="small" id="hW">Выиграл…</button><button type="button" class="small" id="hL">Проиграл…</button></div>
-    <button type="button" class="small" id="hS" style="flex:none">Добавить карты соперника</button>
-    <button type="button" class="small" id="hB" style="flex:none">← К отчёту</button>`);
-  const saveH = () => { delete h._eq; store.set("pk2_hist", HIST); };
-  const fix = res => amountPad({ title: res === "win" ? "Чистый выигрыш" : "Сколько проиграл", initial: Math.abs(h.delta), min: 0, max: 99999, confirmLabel: "Записать", quick: [],
-    onOk: v => { const nd = res === "win" ? v : -v; if (h.sid === S.sid) { S.myStack += nd - h.delta; save(); } h.delta = nd; h.res = res; saveH(); render(); openHand(id); } });
-  $("hW").onclick = () => fix("win"); $("hL").onclick = () => fix("lose");
-  $("hB").onclick = () => openReport();
-  $("hS").onclick = () => {
-    sheet(`<h3>Чьи карты?</h3><div class="list">${h.seats.map((s, i) => i === h.hero ? "" : `<button type="button" class="li" data-i="${i}" style="text-align:left"><span class="m">${h.folded[i] ? "фолд" : "в игре"}</span><span><b>${nm(i)}</b></span><span class="m">${h.show && h.show[i] ? h.show[i].map(cName2).join(" ") : "→"}</span></button>`).join("")}</div>`);
-    document.querySelectorAll(".sheet [data-i]").forEach(b => b.onclick = () => {
-      const i = +b.dataset.i, used = [...h.cards, ...(h.board || []), ...Object.entries(h.show || {}).filter(([k]) => +k !== i).flatMap(([, v]) => v)];
-      cardSheet(`Карты: ${nm(i)}`, used, c => { h.show = h.show || {}; h.show[i] = c; saveH(); openHand(id); });
-    });
-  };
-}
-
-$("btnSess").onclick = openSession;
-$("btnHist").onclick = () => openReport();
-$("btnSeat").onclick = () => EDIT ? (EDIT = false, startHand()) : openEdit();
-startHand();
-if (firstRun) { S.handNo = 0; openEdit(); }
+document.querySelectorAll("[data-tab]").forEach(b => b.onclick = () => { buzz(); showTab(b.dataset.tab); });
+["gear1", "gear2", "gear3"].forEach(id => $(id).onclick = openSettings);
+$("bMe").onclick = () => pickCards({ title: "Моя рука", slots: ST.bMe.slice(), used: ST.opMode === "hand" ? ST.bOp.filter(c => c !== null) : [], onDone: v => { ST.bMe = v; renderBattle(); } });
+$("bOp").onclick = () => {
+  if (ST.opMode === "hand") return pickCards({ title: "Его рука", slots: ST.bOp.slice(), used: ST.bMe.filter(c => c !== null), onDone: v => { ST.bOp = v; renderBattle(); } });
+  $("layer").innerHTML = `<div class="scrim" id="scrim"></div><div class="sheet"><div class="grab"></div><h3>Что сделал соперник</h3><div class="list">${Object.entries(RANGES).map(([k, r]) => `<button type="button" data-rg="${k}"><span>${r.l}</span><span>≈${pctOf(r.get()).toFixed(0)}% рук</span></button>`).join("")}</div></div>`;
+  $("scrim").onclick = () => $("layer").innerHTML = "";
+  document.querySelectorAll("[data-rg]").forEach(b => b.onclick = () => { ST.opRange = b.dataset.rg; $("layer").innerHTML = ""; renderBattle(); });
+};
+$("fPick").onclick = () => {
+  const hand = ST.fHand, board = ST.fBoard;
+  const needHand = hand.some(c => c === null);
+  if (needHand) pickCards({ title: "Моя рука", slots: hand.slice(), used: board.filter(c => c !== null), onDone: v => { ST.fHand = v; renderFlop(); if (v.every(c => c !== null) && board.filter(c => c !== null).length < 3) setTimeout(() => $("fPick").click(), 120); } });
+  else pickCards({ title: "Доска: флоп, тёрн, ривер", slots: board.slice(), used: hand, onDone: v => { ST.fBoard = v; renderFlop(); } });
+};
+$("fHand").addEventListener("click", e => { e.stopPropagation(); pickCards({ title: "Моя рука", slots: ST.fHand.slice(), used: ST.fBoard.filter(c => c !== null), onDone: v => { ST.fHand = v; renderFlop(); } }); });
+showTab(ST.tab);
 </script>
-
-<script>
-if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});
-window.APP_VERSION = "202610121441";
-</script>
-</body>
-</html>
+<script>if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js").catch(()=>{});</script></body></html>
